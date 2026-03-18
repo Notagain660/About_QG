@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "https://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!--可选的DTD声明。它指向一个DTD文件，用于验证这个XML文档的结构和内容是否“合法”，让XML数据结构可以被验证-->
+
+<configuration><!--有且仅有一个根元素。这里是<configuration>，它包含了所有其他子元素，是整个配置的容器。 -->
+    <!-- 1. 环境配置：告诉MyBatis怎么连上你的数据库(定义+具体环境设置）-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED"><!--元素包含属性，子元素可以相互嵌套-->
+                <!-- 这里的数据要改成你自己的 -->
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <!--元素内容这里通过name和value属性，以键值对的形式提供了具体的配置信息，如JDBC驱动类-->
+                <!-- 如果数据库名字不是 dorm_repair，就改成你的库名 -->
+                <property name="url" value="jdbc:mysql://localhost:3306/dorm_repair?useSSL=false&amp;serverTimezone=UTC"/>
+                <property name="username" value="root"/>
+                <property name="password" value="Gq39k1oP17"/> <!-- 改成你的密码 -->
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- 2. 映射器配置：告诉MyBatis去哪找SQL语句（我们待会儿会创建） -->
+
+    <mappers>
+        <mapper resource="com/dorm/mapper/UserMapper.xml"/>
+    </mappers>
+</configuration>
