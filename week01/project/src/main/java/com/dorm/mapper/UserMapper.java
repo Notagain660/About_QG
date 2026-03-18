@@ -8,4 +8,6 @@ public interface UserMapper {
 
     // 根据用户名查询用户（用于登录时检查密码）
     User selectById(String id);
+
+    void updateUser(User user);
 }

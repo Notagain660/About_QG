@@ -4,13 +4,22 @@
 
     <!-- 插入用户：useGeneratedKeys 可以获取自动生成的主键值 -->
     <insert id="insertUser" parameterType="com.dorm.entity.User" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO user (username, password, role)
-        VALUES (#{username}, #{password}, #{role})
+        INSERT INTO user (role, id, password)
+        VALUES (#{role}, #{id}, #{password})
     </insert>
 
     <!-- 根据用户名查询用户 -->
     <select id="selectByUsername" parameterType="string" resultType="com.dorm.entity.User">
-        SELECT * FROM user WHERE username = #{username}
+        SELECT * FROM user WHERE id = #{id}
     </select>
+
+    <update id="updateUser" parameterType="com.dorm.entity.User">
+        UPDATE user
+        SET
+        password = #{password},
+        dorm_building = #{dormBuilding},
+        room_number = #{roomNumber}
+        WHERE id = #{id}
+    </update>
 
 </mapper>

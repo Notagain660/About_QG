@@ -32,14 +32,38 @@ public class UserService {
             }
             // 2. 创建新用户对象
             User user = new User();
-            user.setId(id);
-            user.setPassword(password);
-            user.setPassword(password); // 暂时明文，后续可以加密
             user.setRole(role);
+            user.setId(id);
+            user.setPassword(password); // 暂时明文，后续可以加密
+
             // 3. 插入数据库
             mapper.insertUser(user);
             return true;
         }
+    }
+
+    public User login(String id, String password) {
+        try (SqlSession session = sqlSessionFactory.openSession(true)) {
+            UserMapper mapper = session.getMapper(UserMapper.class);
+            // 检查用户名是否存在
+            User existing = mapper.selectById(id);
+
+            if (existing != null && existing.getPassword().equals(password)) {//比对密码
+                return existing;
+            }
+        }
+        return null;
+    }
+
+    public User updater(User currentUser, String dormBuilding, String roomNumber, String password) {
+        try (SqlSession session = sqlSessionFactory.openSession(true)) {
+            UserMapper mapper = session.getMapper(UserMapper.class);
+            currentUser.setDormBuilding(dormBuilding);
+            currentUser.setRoomNumber(roomNumber);
+            currentUser.setPassword(password);
+            mapper.updateUser(currentUser);
+        }
+        return currentUser;
     }
 
     }

@@ -3,7 +3,7 @@ package com.dorm.entity;
 public class User {
     // 属性：和数据库表字段对应
     private String id;
-    private String name;
+    private String name;//从来没用到。
     private String password;
     private String role; // 角色：student 或 admin
     private String dormBuilding; // 宿舍楼，可为空
@@ -65,11 +65,12 @@ public class User {
 
     // 为了方便看结果，可以重写 toString 方法
     @Override
-    public String toString() {
+    public String toString() {//不是给用户看的
         return "User{" +
-                "id=" + id +
+                "学号/工号=" + id +
                 ", name='" + name + '\'' +
                 ", role='" + role + '\'' +
+                ", password='" + password + '\'' +
                 ", dormBuilding='" + dormBuilding + '\'' +
                 ", roomNumber='" + roomNumber + '\'' +
                 '}';
