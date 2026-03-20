@@ -5,6 +5,11 @@
 <!--可选的DTD声明。它指向一个DTD文件，用于验证这个XML文档的结构和内容是否“合法”，让XML数据结构可以被验证-->
 
 <configuration><!--有且仅有一个根元素。这里是<configuration>，它包含了所有其他子元素，是整个配置的容器。 -->
+
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
     <!-- 1. 环境配置：告诉MyBatis怎么连上你的数据库(定义+具体环境设置）-->
     <environments default="development">
         <environment id="development">
@@ -18,6 +23,7 @@
                 <property name="username" value="root"/>
                 <property name="password" value="Gq39k1oP17"/> <!-- 改成你的密码 -->
             </dataSource>
+
         </environment>
     </environments>
 
@@ -25,5 +31,8 @@
 
     <mappers>
         <mapper resource="com/dorm/mapper/UserMapper.xml"/>
+        <mapper resource="com/dorm/mapper/RepairorderMapper.xml"/>
     </mappers>
+
 </configuration>
+

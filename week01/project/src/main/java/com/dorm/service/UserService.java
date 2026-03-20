@@ -22,7 +22,7 @@ public class UserService {
         }
     }
 
-    public boolean register(String role, String id, String password) {
+    public boolean register(String role, String id, String name, String password) {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             UserMapper mapper = session.getMapper(UserMapper.class);
             // 1. 检查用户名是否存在
@@ -34,6 +34,7 @@ public class UserService {
             User user = new User();
             user.setRole(role);
             user.setId(id);
+            user.setName(name);
             user.setPassword(password); // 暂时明文，后续可以加密
 
             // 3. 插入数据库
@@ -55,15 +56,31 @@ public class UserService {
         return null;
     }
 
-    public User updater(User currentUser, String dormBuilding, String roomNumber, String password) {
+    public boolean updater(User currentUser, String dormBuilding, String roomNumber, String password) {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             UserMapper mapper = session.getMapper(UserMapper.class);
+
+            String previousPassword = currentUser.getPassword();
+            String previousRoomNumber = currentUser.getRoomNumber();
+
             currentUser.setDormBuilding(dormBuilding);
             currentUser.setRoomNumber(roomNumber);
             currentUser.setPassword(password);
             mapper.updateUser(currentUser);
+
+            String newPassword = currentUser.getPassword();
+            String newRoomNumber = currentUser.getRoomNumber();
+
+            if (!newPassword.equals(previousPassword)) {
+                return true;
+            }
+
+            if (!newRoomNumber.equals(previousRoomNumber)) {
+                return true;
+            }
+
         }
-        return currentUser;
+        return false;
     }
 
     }
