@@ -10,6 +10,9 @@ import com.dorm.service.UserService;
 import com.dorm.service.RepairorderService;
 import com.dorm.enums.Role;
 import com.dorm.enums.RepairStatus;
+import com.dorm.utils.LoginResult;
+import com.dorm.utils.ScanfNumberResult;
+import com.dorm.utils.ExceptionDeal;
 
 public class Main {
     public static void main(String[] args) {
@@ -31,30 +34,16 @@ public class Main {
               System.out.println(menuItem);
           }
 
-          int menuChoice = 1, i = 0;
-          while(i == 0){
-              try {
-                  menuChoice = scanner.nextInt();
-                  scanner.nextLine();
-              }  catch (Exception e) {
-                  scanner.nextLine();
-                  System.out.println("输入无效，请重新输入：");
-                  continue;
-              }
-              if(menuChoice < 1 || menuChoice > 3) {
-                  scanner.nextLine();
-                  System.out.println("输入无效，请重新输入：");
-              } else {
-                  i = 1;
-              }
-          }
+          int menuChoice = ScanfNumberResult.getInt(scanner, i -> i >= 1 && i <= 3);
+
           switch (menuChoice) {
               case 1 -> {
                   scanner.nextLine();
                   clear();
                   currentUser = login(scanner, userservice);
                   clear();
-                  if (!currentUser.equals(new User())) {
+
+                  if (currentUser != null) {
                       if (currentUser.getRole() == Role.ADMIN) {
                           administerMenu(currentUser, scanner, repairorderservice, userservice);
                       } else {
@@ -64,11 +53,10 @@ public class Main {
 
               }
 
-
               case 2 -> {
                   scanner.nextLine();
                   clear();
-                  Register(scanner, userservice);
+                  ExceptionDeal.deal(() ->  Register(scanner, userservice));
               }
 
               case 3 -> {
@@ -98,11 +86,7 @@ public class Main {
             System.out.println("===== 用户注册 =====");
             System.out.println("请选择角色（1-学生，2-维修人员）：");
 
-            int roleNumber;int i = 0;
-
-
-            roleNumber = scanner.nextInt();
-            scanner.nextLine();
+            int roleNumber = ScanfNumberResult.getInt(scanner, n -> n == 1 || n == 2);
 
             role = Role.fromChoice(roleNumber);
 
@@ -111,23 +95,8 @@ public class Main {
             }else if(role == Role.STUDENT) {
                 System.out.println("请输入学号（前四位是3225/3125/5124）：");
             }
-            id = scanner.nextLine();
 
-            while(i == 0){
-                try {
-                    id = scanner.nextLine();
-                }  catch (Exception e) {
-                    scanner.nextLine();
-                    System.out.println("输入无效，请重新输入：");
-                    continue;
-                }
-                if(!id.matches("^(3125|3225|5124|0025)\\{6}$")) {
-                    scanner.nextLine();
-                    System.out.println("学号不符合格式，请重新输入：");
-                } else {
-                    i = 1;
-                }
-            }
+            id = ScanfNumberResult.getString(scanner,n -> n.matches("^(3125|3225|5124|0025)\\d{6}$" ));
 
             System.out.println("请输入姓名：");
             name = scanner.nextLine();
@@ -156,93 +125,86 @@ public class Main {
     public static User login(Scanner scanner, UserService userservice) {
 
         String id, password;
-        var user = new User();
+
 
         System.out.println("===== 用户登录 =====");
         System.out.println("请输入账号：");
         id = scanner.nextLine();
         System.out.println("请输入密码：");
         password = scanner.nextLine();
-        user = userservice.login(id, password);
-        if(user != null) {
-            System.out.println("登录成功！角色：" + user.getRole().getRoleName());
-            return user;
-        }else{
-            //System.out.println("(账号或密码错误。");
-            System.out.println("登录失败！请重新登录。");
-            return new User();
-        }//还能优化一下是用户不存在还是账号或密码错误
+
+            LoginResult loginresult = userservice.login(id, password);
+
+            if(loginresult.success()) {
+                System.out.println("登录成功！角色：" + loginresult.user().getRole().getRoleName());
+                return loginresult.user();
+            }else{
+                System.out.println("登录失败，" + loginresult.message());
+                return null;
+            }
+
     }
 
     public static void studentMenu(User currentUser, Scanner scanner, UserService userservice,
                                    RepairorderService repairorderservice) {
 
-        int i = 0, menuChoice = 0;
-
+    while(true){
         List<String> list = List.of("===== 学生菜单 =====",
                 "1. 绑定/修改宿舍", "2. 查看个人信息", "3. 创建报修单", "4. 查看我的报修记录", "5. 取消报修单", "6. 修改密码",
                 "7. 退出");
         for (var s : list) {
             System.out.println(s);
         }
-        System.out.println("请选择操作（输入1-6）");
+        System.out.println("请选择操作（输入1-7）");
 
-        while(i == 0){
-            try {
-                menuChoice = scanner.nextInt();
-                scanner.nextLine();
-            }  catch (Exception e) {
-                scanner.nextLine();
-                System.out.println("输入无效，请重新输入：");
-                continue;
-            }
-            if(menuChoice < 1 || menuChoice > 7) {
-                scanner.nextLine();
-                System.out.println("输入无效，请重新输入：");
-            } else {
-                       i = 1;
-            }
-        }
+        int menuChoice = ScanfNumberResult.getInt(scanner, i -> i >= 1 && i <= 7);
+
         switch (menuChoice) {
             case 1 -> {
                 clear();
-                dormFix(currentUser, scanner, userservice);//话说菜单功能返回上一步怎么做啊。
+                ExceptionDeal.deal(() ->dormFix(currentUser, scanner, userservice));
             }
-               case 2 -> {
+            case 2 -> {
                 clear();
-                printInformation(currentUser);
+                ExceptionDeal.deal(() -> printInformation(currentUser));
             }
 
             case 3 -> {
                 clear();
-                newRepairorder(currentUser, scanner, repairorderservice);
+                ExceptionDeal.deal(() -> newRepairorder(currentUser, scanner, repairorderservice));
             }
 
             case 4 -> {
                 clear();
-                checkMyRepairorder(currentUser, scanner,repairorderservice);
+                ExceptionDeal.deal(() -> checkMyRepairorder(currentUser, scanner,repairorderservice));
             }
 
             case 5 -> {
                 clear();
-                cancelRepairorder(scanner,repairorderservice);
+                ExceptionDeal.deal(() -> cancelRepairorder(scanner,repairorderservice));
             }
 
             case 6 -> {
                 clear();
-                passwordChange(currentUser, scanner, userservice);
+                ExceptionDeal.deal(() -> passwordChange(currentUser, scanner, userservice));
             }
 
             case 7 -> {
                 clear();
                 System.out.println("感谢您的使用！");
+                return;
+            }
+            default -> {
+                clear();
+                System.out.println("输入无效，请重新输入：");
             }
         }
+    }
+
  }
 
     public static void dormFix(User currentUser, Scanner scanner, UserService userservice) {
-        //宿舍绑定细化功能可以是进入之后看到绑定的宿舍（与否）然后再可选是否修改/绑定/退出，
-        // 并且宿舍号输入的检验（异常）可以包括宿舍楼和宿舍号，0318先写基础功能
+
         String dormBuilding, roomNumber, password = currentUser.getPassword();
         boolean x;
 
@@ -277,7 +239,7 @@ public class Main {
         System.out.println("=====用户基本信息=====");
         System.out.println("学号/工号：" + currentUser.getId());
         System.out.println("姓名：" +  currentUser.getName());
-        System.out.println("身份：" + currentUser.getRole());
+        System.out.println("身份：" + currentUser.getRole().getRoleName());
         System.out.println("宿舍号：" + currentUser.getDormBuilding() + currentUser.getRoomNumber());
  }
 
@@ -297,6 +259,7 @@ public class Main {
          password1 = scanner.nextLine();
      }
         if(userservice.updater(currentUser, dormBuilding, roomNumber, password)){
+            currentUser.setPassword(password);
             System.out.println("密码修改成功！");
         } else {
             System.out.println("密码修改失败，请检查新密码与原密码是否一致。");
@@ -325,7 +288,6 @@ public class Main {
     public static void checkMyRepairorder(User currentUser, Scanner scanner, RepairorderService repairorderservice) {
 
         List<Repairorder> r = repairorderservice.checkMyrepairorder(currentUser);
-        long orderId = r.get(0).getOrderId();
 
         System.out.printf("%-12s %-10s %-10s %-5s %-20s %-20s %-20s\n", "学号", "报修单号", "设备类型", "状态", "创建时间", "最新提交时间", "完成时间");
 
@@ -348,22 +310,7 @@ public class Main {
         }else {
             System.out.println("输入报修单号以查看详情······");
 
-            int i = 0;
-            while(i == 0){
-                try {
-                    orderId = scanner.nextLong();
-                    scanner.nextLine();
-                }catch (Exception e) {
-                    scanner.nextLine();
-                    System.out.println("输入无效，请重新输入！");
-                    continue;
-                }
-                if(repairorderservice.loginRepairorder(orderId)){
-                    System.out.println("报修单号不存在，请重新输入！");
-                }else{
-                    i = 1;
-                }
-            }
+            long orderId = ScanfNumberResult.getValidLong(scanner, "报修单号不存在，请重新输入：", repairorderservice::loginRepairorder);
 
             clear();
 
@@ -389,7 +336,7 @@ public class Main {
             System.out.printf("宿舍号：" + dormBuilding + roomNumber);
             System.out.printf("联系方式（电话号码：" + phoneNumber);
             System.out.printf("设备类型：" + deviceType);
-            System.out.printf("状态：" + repairorder.getStatus());
+            System.out.printf("状态：" + repairorder.getStatus().getText());
             System.out.printf("问题描述：" + descriptionText);
             System.out.printf("创建时间：" + createTime);
             System.out.printf("最新提交时间：" + updateTime);
@@ -407,27 +354,10 @@ public class Main {
     public static void cancelRepairorder(Scanner scanner, RepairorderService repairorderservice) {
 
         System.out.println("请输入需要取消的报修单号：");
-        long orderId = scanner.nextLong();
-        scanner.nextLine();
+        Long orderId = ScanfNumberResult.getValidLong(scanner, "报修单号不存在，请重新输入：", repairorderservice::loginRepairorder);
 
-        int i = 0;
-        while(i == 0){
-            try {
-                orderId = scanner.nextLong();
-                scanner.nextLine();
-            }catch (Exception e) {
-                System.out.println("输入无效，请重新输入：");
-                scanner.nextLine();
-                continue;
-            }
-            if(repairorderservice.loginRepairorder(orderId)){
-                System.out.println("报修单号不存在，请重新输入！");
-            }else{
-                i = 1;
-            }
-        }
 
-            RepairStatus status = RepairStatus.CANCELED;
+        RepairStatus status = RepairStatus.CANCELED;
 
             if(repairorderservice.updateRepairorder(status,orderId)){
                 System.out.println("取消报修单成功！");
@@ -440,10 +370,10 @@ public class Main {
     }
 
     public static void administerMenu(User currentUser, Scanner scanner,
-                                      RepairorderService repairorderservice, UserService userservice) {
+                                      RepairorderService repairorderservice,
+                                      UserService userservice) {
 
-        int i = 0, menuChoice = 0;
-
+    while(true){
         List<String> list = List.of("===== 管理员菜单 =====",
                 "1. 查看所有报修单", "2. 查看报修单详情", "3. 更新报修单状态", "4. 删除报修单", "5. 修改密码", "6. 退出");
         for (String s : list) {
@@ -451,161 +381,166 @@ public class Main {
         }
         System.out.println("请选择操作（输入1-6）");
 
-        while(i == 0){
-            try {
-                menuChoice = scanner.nextInt();
-                scanner.nextLine();
-            }  catch (Exception e) {
-                scanner.nextLine();
-                System.out.println("输入无效，请重新输入：");
-                continue;
-            }
-            if(menuChoice < 1 || menuChoice > 7) {
-                scanner.nextLine();
-                System.out.println("输入无效，请重新输入：");
-            } else {
-                i = 1;
-            }
-        }
+        int menuChoice = ScanfNumberResult.getInt(scanner, n -> n >= 1 && n <= 6);
+
         switch (menuChoice) {
             case 1 -> {
                 clear();
-                adCheckAll(scanner, repairorderservice);
+                ExceptionDeal.deal(() -> adCheckAll(scanner, repairorderservice));
             }
             case 2 -> {
                 clear();
-                checkCertain(scanner,repairorderservice);
+                ExceptionDeal.deal(() -> checkCertain(scanner,repairorderservice));
             }
 
             case 3 -> {
                 clear();
-                adUpdatestatus(scanner, repairorderservice);
+                ExceptionDeal.deal(() -> adUpdatestatus(scanner, repairorderservice));
             }
 
             case 4 -> {
                 clear();
-                deleteRepairorder(scanner,repairorderservice);
+                ExceptionDeal.deal(() -> deleteRepairorder(scanner,repairorderservice));
             }
 
             case 5 -> {
                 clear();
-                passwordChange(currentUser, scanner, userservice);
+                ExceptionDeal.deal(() -> passwordChange(currentUser, scanner, userservice));
             }
 
             case 6 -> {
                 clear();
                 System.out.println("感谢您的使用！");
+                return;
+            }
+            default -> {
+                clear();
+                System.out.println("输入无效，请重新输入：");
             }
         }
     }
 
+
+    }
+
     public static void adCheckAll(Scanner scanner, RepairorderService repairorderservice) {
 
-        int i = 0;
-
         List<String> checkMenu = List.of("1. 查看所有报修单",
-                "2. 查看未处理的报修单", "3. 查看正在处理的报修单", "4. 查看处理完成的报修单",
+                "2. 查看未处理的报修单", "3. 查看正在处理的报修单", "4. 查看处理完成的报修单", "5. 查看已取消的报修单", "6. 退出",
                 "请选择报修单查看方式（如查看所有报修单，请按1：）");
         for(String s : checkMenu) {
             System.out.println(s);
         }
 
-        int wayChoice = scanner.nextInt();
-        scanner.nextLine();
+        int wayChoice = ScanfNumberResult.getInt(scanner, n -> n >= 1 && n <= 6);
 
-        while(i == 0){
-            try {
-                wayChoice = scanner.nextInt();
-                scanner.nextLine();
-            }  catch (Exception e) {
-                scanner.nextLine();
-                System.out.println("输入无效，请重新输入：");
-                continue;
-            }
-            if(wayChoice < 1 || wayChoice > 4) {
-                scanner.nextLine();
-                System.out.println("输入无效，请重新输入：");
-            } else {
-                i = 1;
-            }
-        }
+        while(true){
+            switch (wayChoice) {
+                case 1 -> {
+                    clear();
+                    List<Repairorder> r = repairorderservice.checkAllRepairorder();
 
-        switch (wayChoice) {
-            case 1 -> {
-                clear();
-                List<Repairorder> r = repairorderservice.checkAllRepairorder();
+                    System.out.printf("%-12s %-10s %-10s %-5s %-20s %-20s %-20s %-5s\n", "学号", "报修单号", "设备类型", "状态",
+                            "创建时间", "最新提交时间", "完成时间", "优先级");
 
-                System.out.printf("%-12s %-10s %-10s %-5s %-20s %-20s %-20s %-5s\n", "学号", "报修单号", "设备类型", "状态",
-                        "创建时间", "最新提交时间", "完成时间", "优先级");
+                    for (Repairorder repairorder : r) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
+                        String status = repairorder.getStatus().getText();
+                        String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
+                        String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
+                        String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
+                        String priorityLevel = repairorder.getPriorityLevel() == null ? "-" : repairorder.getPriorityLevel();
 
-                for (Repairorder repairorder : r) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                    String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-                    String status = repairorder.getStatus().getText();
-                    String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
-                    String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
-                    String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
-                    String priorityLevel = repairorder.getPriorityLevel() == null ? "-" : repairorder.getPriorityLevel();
+                        System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s %-5s\n", repairorder.getId(),
+                                repairorder.getOrderId(),
+                                deviceType, status, createTime, updateTime, processTime, priorityLevel);
+                    }
 
-                    System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s %-5s\n", repairorder.getId(),
-                            repairorder.getOrderId(),
-                            deviceType, status, createTime, updateTime, processTime, priorityLevel);
                 }
 
-            }
+                case 2 -> {
+                    clear();
+                    List<Repairorder> r = repairorderservice.checkAllRepairorderByStatus(RepairStatus.PENDING);
+                    for (Repairorder repairorder : r) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
+                        String status = repairorder.getStatus().getText();
+                        String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
+                        String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
+                        String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
+                        String priorityLevel = repairorder.getPriorityLevel() == null ? "-" : repairorder.getPriorityLevel();
 
-            case 2 -> {
-                clear();
-                List<Repairorder> r = repairorderservice.checkAllRepairorderByStatus("未处理");
-                for (Repairorder repairorder : r) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                    String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-                    String status = repairorder.getStatus().getText();
-                    String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
-                    String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
-                    String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
-                    String priorityLevel = repairorder.getPriorityLevel() == null ? "-" : repairorder.getPriorityLevel();
+                        System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s %-5s\n", repairorder.getId(),
+                                repairorder.getOrderId(),
+                                deviceType, status, createTime, updateTime, processTime, priorityLevel);
+                    }
 
-                    System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s %-5s\n", repairorder.getId(),
-                            repairorder.getOrderId(),
-                            deviceType, status, createTime, updateTime, processTime, priorityLevel);
                 }
 
-            }
+                case 3 -> {
+                    clear();
+                    List<Repairorder> r = repairorderservice.checkAllRepairorderByStatus(RepairStatus.PROCESSING);
+                    for (Repairorder repairorder : r) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
+                        String status = repairorder.getStatus().getText();
+                        String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
+                        String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
+                        String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
+                        String priorityLevel = repairorder.getPriorityLevel() == null ? "-" : repairorder.getPriorityLevel();
 
-            case 3 -> {
-                clear();
-                List<Repairorder> r = repairorderservice.checkAllRepairorderByStatus("正在处理");
-                for (Repairorder repairorder : r) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                    String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-                    String status = repairorder.getStatus().getText();
-                    String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
-                    String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
-                    String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
-                    String priorityLevel = repairorder.getPriorityLevel() == null ? "-" : repairorder.getPriorityLevel();
-
-                    System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s %-5s\n", repairorder.getId(),
-                            repairorder.getOrderId(),
-                            deviceType, status, createTime, updateTime, processTime, priorityLevel);
+                        System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s %-5s\n", repairorder.getId(),
+                                repairorder.getOrderId(),
+                                deviceType, status, createTime, updateTime, processTime, priorityLevel);
+                    }
                 }
-            }
 
-            case 4 -> {
-                clear();
-                List<Repairorder> r = repairorderservice.checkAllRepairorderByStatus("处理完成");
-                for (Repairorder repairorder : r) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                    String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-                    String status = repairorder.getStatus().getText();
-                    String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
-                    String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
-                    String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
-                    String priorityLevel = repairorder.getPriorityLevel() == null ? "-" : repairorder.getPriorityLevel();
+                case 4 -> {
+                    clear();
+                    List<Repairorder> r = repairorderservice.checkAllRepairorderByStatus(RepairStatus.COMPLETED);
+                    for (Repairorder repairorder : r) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
+                        String status = repairorder.getStatus().getText();
+                        String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
+                        String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
+                        String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
+                        String priorityLevel = repairorder.getPriorityLevel() == null ? "-" : repairorder.getPriorityLevel();
 
-                    System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s %-5s\n", repairorder.getId(),
-                            repairorder.getOrderId(),
-                            deviceType, status, createTime, updateTime, processTime, priorityLevel);
+                        System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s %-5s\n", repairorder.getId(),
+                                repairorder.getOrderId(),
+                                deviceType, status, createTime, updateTime, processTime, priorityLevel);
+                    }
+                }
+
+                case 5 -> {
+                    clear();
+                    List<Repairorder> r = repairorderservice.checkAllRepairorderByStatus(RepairStatus.CANCELED);
+                    for (Repairorder repairorder : r) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
+                        String status = repairorder.getStatus().getText();
+                        String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
+                        String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
+                        String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
+                        String priorityLevel = repairorder.getPriorityLevel() == null ? "-" : repairorder.getPriorityLevel();
+
+                        System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s %-5s\n", repairorder.getId(),
+                                repairorder.getOrderId(),
+                                deviceType, status, createTime, updateTime, processTime, priorityLevel);
+                    }
+                }
+
+                case 6 -> {
+                    clear();
+                    System.out.println("感谢您的使用！");
+                    return;
+                }
+
+                default -> {
+                    clear();
+                    System.out.println("输入无效，请重新输入：");
                 }
             }
         }
@@ -616,28 +551,9 @@ public class Main {
     public static void checkCertain(Scanner scanner, RepairorderService repairorderservice) {
 
         System.out.println("输入报修单号以查看详情······");
-        Long orderId = scanner.nextLong();
+        Long orderId = ScanfNumberResult.getValidLong(scanner, "报修单号不存在，请重新输入：", repairorderservice::loginRepairorder);
 
-
-        int i = 0;
-        while(i ==0){
-            try{
-                scanner.nextLine();
-            }catch(Exception e){
-                System.out.println("输入无效，请重新输入：");
-                scanner.nextLine();
-                //System.out.println(e.getMessage());
-                continue;
-            }
-            if(repairorderservice.loginRepairorder(orderId)){
-                System.out.println("报修单号不存在，请重新输入！");
-            }else{
-                i = 1;
-            }
-
-        }
-
-            clear();
+        clear();
 
             Repairorder repairorder = repairorderservice.checkRepairorder(orderId);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -683,49 +599,12 @@ public class Main {
 
     public static void adUpdatestatus(Scanner scanner, RepairorderService repairorderservice) {
 
-        int i = 0;
         System.out.println("=====更新状态=====");
         System.out.println("请输入需要更新状态的报修单号");
-        Long orderId = scanner.nextLong();
-        scanner.nextLine();
+        Long orderId = ScanfNumberResult.getValidLong(scanner, "报修单号不存在，请重新输入：", repairorderservice::loginRepairorder);
 
-        while(i ==0){
-            try{
-                scanner.nextLine();
-            }catch(Exception e){
-                System.out.println("输入无效，请重新输入：");
-                scanner.nextLine();
-                continue;
-            }
-            if(repairorderservice.loginRepairorder(orderId)){
-                System.out.println("报修单号不存在，请重新输入：");
-            }else{
-                i = 1;
-            }
-        }
-
-        i = 0;
-
-            System.out.println("请输入状态（正在处理请按1，处理完成请按2）：");
-            int sTatus = scanner.nextInt();
-            scanner.nextLine();
-
-            while(i == 0){
-                try {
-                    sTatus = scanner.nextInt();
-                    scanner.nextLine();
-                }  catch (Exception e) {
-                    scanner.nextLine();
-                    System.out.println("输入无效，请重新输入：");
-                    continue;
-                }
-                if(sTatus < 1 || sTatus > 2) {
-                    scanner.nextLine();
-                    System.out.println("输入无效，请重新输入：");
-                } else {
-                    i = 1;
-                }
-            }
+        System.out.println("请输入状态（正在处理请按1，处理完成请按2）：");
+            int sTatus = ScanfNumberResult.getInt(scanner, n -> n == 1 || n == 2);
 
             RepairStatus status = RepairStatus.fromChoice(sTatus);
 
@@ -740,24 +619,8 @@ public class Main {
 
     public static void deleteRepairorder(Scanner scanner, RepairorderService repairorderservice) {
         System.out.println("请输入需要删除的报修单号：");
-        long orderId = 0L;
 
-        int i = 0;
-        while(i ==0){
-            try {
-                orderId = scanner.nextLong();
-                scanner.nextLine();
-            }catch (Exception e) {
-                System.out.println("输入无效，请重新输入！");
-                scanner.nextLine();
-                continue;
-            }
-            if(repairorderservice.deleteRepairorder(orderId)){
-                System.out.println("报修单号不存在，请重新输入：");
-            }else{
-                i = 1;
-            }
-        }
+        Long orderId = ScanfNumberResult.getValidLong(scanner, "报修单号不存在，请重新输入：", repairorderservice::loginRepairorder);
 
             if(repairorderservice.deleteRepairorder(orderId)){
                 System.out.println("删除报修单成功！");

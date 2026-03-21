@@ -1,5 +1,6 @@
 package com.dorm.service;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -54,11 +55,15 @@ public class RepairorderService {
             mapper.insertRepairorder(repairorder);
 
             Repairorder repairorder2 = mapper.selectByOrderId(repairorder.getOrderId());
-            if (repairorder2 != null) {
-                return true;
-            }
+            return repairorder2 != null;
+        }catch (PersistenceException e) {
+            // 记录日志
+            System.err.println("数据库操作失败：" + e.getMessage());
+            e.printStackTrace();
+            // 转换为运行时异常，让上层统一处理
+            throw new RuntimeException("创建报修单失败，请稍后重试", e);
         }
-        return false;
+
     }
 
     public List<Repairorder> checkMyrepairorder(User currentUser) {
@@ -66,7 +71,18 @@ public class RepairorderService {
             RepairorderMapper mapper = session.getMapper(RepairorderMapper.class);
             String id = currentUser.getId();
             return mapper.selectByUserId(id);
+        }catch (PersistenceException e) {
+            // 数据库操作异常（如连接失败、SQL错误）
+            System.err.println("数据库操作失败：" + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("系统繁忙，请稍后重试", e);
+        } catch (Exception e) {
+            // 其他未预料异常
+            System.err.println("未知错误：" + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("操作失败", e);
         }
+
     }
 
     public Repairorder checkRepairorder(Long orderId) {
@@ -75,6 +91,16 @@ public class RepairorderService {
             Repairorder repairorder = mapper.selectByOrderId(orderId);
             mapper.selectByOrderId(orderId);
             return repairorder;
+        }catch (PersistenceException e) {
+            // 数据库操作异常（如连接失败、SQL错误）
+            System.err.println("数据库操作失败：" + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("系统繁忙，请稍后重试", e);
+        } catch (Exception e) {
+            // 其他未预料异常
+            System.err.println("未知错误：" + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("操作失败", e);
         }
     }
 
@@ -94,25 +120,51 @@ public class RepairorderService {
             }
 
             Date nextDate = repairorder.getUpdateTime();
-            if(previousDate != nextDate) {
-                return true;
-            }
+            return previousDate != nextDate;
+        }catch (PersistenceException e) {
+            // 记录日志
+            System.err.println("数据库操作失败：" + e.getMessage());
+            e.printStackTrace();
+            // 转换为运行时异常，让上层统一处理
+            throw new RuntimeException("更新报修单失败，请稍后重试", e);
         }
-        return false;
+
     }
 
     public List<Repairorder> checkAllRepairorder() {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             RepairorderMapper mapper = session.getMapper(RepairorderMapper.class);
             return mapper.selectAll();
+        }catch (PersistenceException e) {
+            // 数据库操作异常（如连接失败、SQL错误）
+            System.err.println("数据库操作失败：" + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("系统繁忙，请稍后重试", e);
+        } catch (Exception e) {
+            // 其他未预料异常
+            System.err.println("未知错误：" + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("操作失败", e);
         }
+
     }
 
-    public List<Repairorder> checkAllRepairorderByStatus(String status) {
+    public List<Repairorder> checkAllRepairorderByStatus(RepairStatus status) {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             RepairorderMapper mapper = session.getMapper(RepairorderMapper.class);
             return mapper.selectByStatus(status);
+        }catch (PersistenceException e) {
+            // 数据库操作异常（如连接失败、SQL错误）
+            System.err.println("数据库操作失败：" + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("系统繁忙，请稍后重试", e);
+        } catch (Exception e) {
+            // 其他未预料异常
+            System.err.println("未知错误：" + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("操作失败", e);
         }
+
     }
 
     public boolean finishRepairorder(String priorityLevel, Long orderId) {
@@ -125,11 +177,15 @@ public class RepairorderService {
             repairorder.setPriorityLevel(priorityLevel);
             mapper.updateRepairorder(repairorder);
 
-            if (!previousPriorityLevel.equals(priorityLevel)) {
-                return true;
-            }
+            return !previousPriorityLevel.equals(priorityLevel);
+        }catch (PersistenceException e) {
+            // 记录日志
+            System.err.println("数据库操作失败：" + e.getMessage());
+            e.printStackTrace();
+            // 转换为运行时异常，让上层统一处理
+            throw new RuntimeException("上传报修单优先级失败，请稍后重试", e);
         }
-        return false;
+
     }
 
     public boolean deleteRepairorder(Long orderId) {
@@ -138,21 +194,29 @@ public class RepairorderService {
 
             mapper.deleteByOrderId(orderId);
             Repairorder repairorder = mapper.selectByOrderId(orderId);
-            if(repairorder == null){
-                return true;
-            }
+            return repairorder == null;
+        }catch (PersistenceException e) {
+            // 记录日志
+            System.err.println("数据库操作失败：" + e.getMessage());
+            e.printStackTrace();
+            // 转换为运行时异常，让上层统一处理
+            throw new RuntimeException("删除报修单失败，请稍后重试", e);
         }
-        return false;
+
     }
 
     public boolean loginRepairorder(Long orderId) {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             RepairorderMapper mapper = session.getMapper(RepairorderMapper.class);
             Repairorder repairorder = mapper.selectByOrderId(orderId);
-            if((repairorder != null) && (orderId.equals(repairorder.getOrderId()))){
-                return true;
-            }
+            return (repairorder != null) && (orderId.equals(repairorder.getOrderId()));
+        }catch (PersistenceException e) {
+            // 记录日志
+            System.err.println("数据库操作失败：" + e.getMessage());
+            e.printStackTrace();
+            // 转换为运行时异常，让上层统一处理
+            throw new RuntimeException("载入报修单失败，请稍后重试", e);
         }
-        return false;
+
     }
 }

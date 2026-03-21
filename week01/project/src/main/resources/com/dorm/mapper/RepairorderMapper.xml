@@ -23,17 +23,6 @@
         SELECT * FROM repairorder WHERE status = #{status}
     </select>
 
-    <select id="selectByCreateTime" parameterType="java.util.Date" resultType="com.dorm.entity.Repairorder">
-        SELECT * FROM repairorder WHERE createTime = #{createTime}
-    </select>
-
-    <select id="selectByUpdateTime" parameterType="java.util.Date" resultType="com.dorm.entity.Repairorder">
-        SELECT * FROM repairorder WHERE updateTime = #{updateTime}
-    </select>
-
-    <select id="selectByProcessTime" parameterType="java.util.Date" resultType="com.dorm.entity.Repairorder">
-        SELECT * FROM repairorder WHERE processTime = #{processTime}
-    </select>
 
     <update id="updateRepairorder" parameterType="com.dorm.entity.Repairorder">
         UPDATE repairorder
