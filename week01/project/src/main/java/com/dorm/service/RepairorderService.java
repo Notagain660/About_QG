@@ -10,12 +10,13 @@ import java.util.*;
 import com.dorm.entity.Repairorder;
 import com.dorm.mapper.RepairorderMapper;
 import com.dorm.entity.User;
+import com.dorm.enums.RepairStatus;
 
 
 
 public class RepairorderService {
 
-    private SqlSessionFactory sqlSessionFactory;
+    private final SqlSessionFactory sqlSessionFactory;
 
     public RepairorderService() {
         try {
@@ -23,7 +24,9 @@ public class RepairorderService {
             InputStream inputStream = Resources.getResourceAsStream(resource);
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
         } catch (IOException e) {
+            System.err.println(e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -37,7 +40,7 @@ public class RepairorderService {
 
             String dormBuilding = currentUser.getDormBuilding();
             String roomNumber = currentUser.getRoomNumber();
-            String status = "未处理";
+            RepairStatus status = RepairStatus.PENDING;
 
             repairorder.setId(id);
             repairorder.setDormBuilding(dormBuilding);
@@ -75,7 +78,7 @@ public class RepairorderService {
         }
     }
 
-    public boolean updateRepairorder(String status, Long orderId) {
+    public boolean updateRepairorder(RepairStatus status, Long orderId) {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             RepairorderMapper mapper = session.getMapper(RepairorderMapper.class);
             Repairorder repairorder = mapper.selectByOrderId(orderId);
@@ -86,11 +89,9 @@ public class RepairorderService {
             repairorder.setUpdateTime(new Date());
             mapper.updateRepairorder(repairorder);
 
-            if(status.equals("处理完成")){
+            if(status == RepairStatus.COMPLETED) {
                 repairorder.setProcessTime(new Date());
             }
-
-
 
             Date nextDate = repairorder.getUpdateTime();
             if(previousDate != nextDate) {

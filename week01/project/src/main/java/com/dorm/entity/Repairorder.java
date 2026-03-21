@@ -1,6 +1,7 @@
 package com.dorm.entity;
 
 import java.util.Date;
+import com.dorm.enums.RepairStatus;
 
 public class Repairorder {
     private String id;
@@ -9,7 +10,7 @@ public class Repairorder {
     private String roomNumber;
     private String phoneNumber;
     private String deviceType;
-    private String status;
+    private RepairStatus status;
     private String descriptionText;
     private Date createTime;
     private Date updateTime;
@@ -68,11 +69,11 @@ public class Repairorder {
         this.deviceType = deviceType;
     }
 
-    public String getStatus() {
+    public RepairStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(RepairStatus status) {
         this.status = status;
     }
 

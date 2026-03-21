@@ -1,11 +1,13 @@
 package com.dorm.entity;
 
+import com.dorm.enums.Role;
+
 public class User {
     // 属性：和数据库表字段对应
     private String id;
     private String name;//从来没用到。
     private String password;
-    private String role; // 角色：student 或 admin
+    private Role role; // 角色：student 或 admin
     private String dormBuilding; // 宿舍楼，可为空
     private String roomNumber;   // 房间 号，可为空
 
@@ -39,11 +41,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
@@ -68,11 +70,11 @@ public class User {
     public String toString() {//不是给用户看的
         return "User{" +
                 "学号/工号=" + id +
-                ", name='" + name + '\n' +
-                ", role='" + role + '\n' +
-                ", password='" + password + '\n' +
-                ", dormBuilding='" + dormBuilding + '\'' +
-                ", roomNumber='" + roomNumber + '\'' +
+                "name=" + name + '\n' +
+                "role=" + role + '\n' +
+                "password=" + password + '\n' +
+                "dormBuilding=" + dormBuilding + '\n' +
+                "roomNumber=" + roomNumber + '\n' +
                 '}';
     }
 }

@@ -8,6 +8,8 @@ import com.dorm.entity.Repairorder;
 import com.dorm.entity.User;
 import com.dorm.service.UserService;
 import com.dorm.service.RepairorderService;
+import com.dorm.enums.Role;
+import com.dorm.enums.RepairStatus;
 
 public class Main {
     public static void main(String[] args) {
@@ -52,8 +54,8 @@ public class Main {
                   clear();
                   currentUser = login(scanner, userservice);
                   clear();
-                  if (currentUser != null) {
-                      if (currentUser.getId().startsWith("0025")) {
+                  if (!currentUser.equals(new User())) {
+                      if (currentUser.getRole() == Role.ADMIN) {
                           administerMenu(currentUser, scanner, repairorderservice, userservice);
                       } else {
                           studentMenu(currentUser, scanner, userservice, repairorderservice);
@@ -89,7 +91,8 @@ public class Main {
 
     public static void Register(Scanner scanner, UserService userservice) {
 
-        String role = null, id, name, password;
+        String id, name, password;
+        Role role;
 
 
             System.out.println("===== 用户注册 =====");
@@ -97,30 +100,15 @@ public class Main {
 
             int roleNumber;int i = 0;
 
-            while(i == 0){
-                try {
-                    roleNumber = scanner.nextInt();
-                }  catch (Exception e) {
-                scanner.nextLine();
-                System.out.println("输入无效，请重新输入：");
-                continue;
-            }
-                if(roleNumber != 1 && roleNumber != 2) {
-                    scanner.nextLine();
-                    System.out.println("输入无效，请重新输入：");
-                } else {
-                    role = (roleNumber == 1) ? "student" : "administer";
-                    i = 1;
-                }
-            }
 
-            i = 0;
-
+            roleNumber = scanner.nextInt();
             scanner.nextLine();
 
-            if(role.equals("administer")) {
+            role = Role.fromChoice(roleNumber);
+
+            if(role == Role.ADMIN) {
                 System.out.println("请输入工号（前四位是0025）：");
-            }else{
+            }else if(role == Role.STUDENT) {
                 System.out.println("请输入学号（前四位是3225/3125/5124）：");
             }
             id = scanner.nextLine();
@@ -133,7 +121,7 @@ public class Main {
                     System.out.println("输入无效，请重新输入：");
                     continue;
                 }
-                if(!id.startsWith("0025") && !id.startsWith("3225") && !id.startsWith("5124") && !id.startsWith("3125")) {
+                if(!id.matches("^(3125|3225|5124|0025)\\{6}$")) {
                     scanner.nextLine();
                     System.out.println("学号不符合格式，请重新输入：");
                 } else {
@@ -175,14 +163,14 @@ public class Main {
         id = scanner.nextLine();
         System.out.println("请输入密码：");
         password = scanner.nextLine();
-        user = userservice.login(id, password);//这里需要根据学号前几位校验
+        user = userservice.login(id, password);
         if(user != null) {
-            System.out.println("登录成功！角色：" + user.getRole());
+            System.out.println("登录成功！角色：" + user.getRole().getRoleName());
             return user;
         }else{
             //System.out.println("(账号或密码错误。");
             System.out.println("登录失败！请重新登录。");
-            return null;
+            return new User();
         }//还能优化一下是用户不存在还是账号或密码错误
     }
 
@@ -248,7 +236,6 @@ public class Main {
             case 7 -> {
                 clear();
                 System.out.println("感谢您的使用！");
-                System.exit(0);
             }
         }
  }
@@ -256,7 +243,6 @@ public class Main {
     public static void dormFix(User currentUser, Scanner scanner, UserService userservice) {
         //宿舍绑定细化功能可以是进入之后看到绑定的宿舍（与否）然后再可选是否修改/绑定/退出，
         // 并且宿舍号输入的检验（异常）可以包括宿舍楼和宿舍号，0318先写基础功能
-        //if条件判断成功还是失败（参考注册和登录）
         String dormBuilding, roomNumber, password = currentUser.getPassword();
         boolean x;
 
@@ -275,10 +261,14 @@ public class Main {
         if (x) {
             if(userservice.updater(currentUser, dormBuilding, roomNumber, password)){
                 System.out.println("宿舍号绑定完毕！");
+            }else{
+                System.out.println("宿舍号绑定失败！");
             }
         } else {
             if(userservice.updater(currentUser, dormBuilding, roomNumber, password)){
             System.out.println("宿舍号修改完毕！");
+            }else{
+                System.out.println("宿舍号修改失败！");
             }
         }
     }
@@ -342,7 +332,7 @@ public class Main {
         for (Repairorder repairorder : r) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-            String status = repairorder.getStatus() == null ? "-" : repairorder.getStatus();
+            String status = repairorder.getStatus().getText();
             String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
             String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
             String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
@@ -437,8 +427,8 @@ public class Main {
             }
         }
 
+            RepairStatus status = RepairStatus.CANCELED;
 
-            String status = "已取消";
             if(repairorderservice.updateRepairorder(status,orderId)){
                 System.out.println("取消报修单成功！");
             } else {
@@ -505,7 +495,6 @@ public class Main {
             case 6 -> {
                 clear();
                 System.out.println("感谢您的使用！");
-                System.exit(0);
             }
         }
     }
@@ -552,7 +541,7 @@ public class Main {
                 for (Repairorder repairorder : r) {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                     String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-                    String status = repairorder.getStatus() == null ? "-" : repairorder.getStatus();
+                    String status = repairorder.getStatus().getText();
                     String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
                     String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
                     String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
@@ -571,7 +560,7 @@ public class Main {
                 for (Repairorder repairorder : r) {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                     String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-                    String status = repairorder.getStatus() == null ? "-" : repairorder.getStatus();
+                    String status = repairorder.getStatus().getText();
                     String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
                     String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
                     String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
@@ -590,7 +579,7 @@ public class Main {
                 for (Repairorder repairorder : r) {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                     String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-                    String status = repairorder.getStatus() == null ? "-" : repairorder.getStatus();
+                    String status = repairorder.getStatus().getText();
                     String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
                     String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
                     String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
@@ -608,7 +597,7 @@ public class Main {
                 for (Repairorder repairorder : r) {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                     String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-                    String status = repairorder.getStatus() == null ? "-" : repairorder.getStatus();
+                    String status = repairorder.getStatus().getText();
                     String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
                     String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
                     String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
@@ -656,7 +645,7 @@ public class Main {
             String roomNumber = repairorder.getRoomNumber() == null ? "-" : repairorder.getRoomNumber();
             String phoneNumber = repairorder.getPhoneNumber() == null ? "-" : repairorder.getPhoneNumber();
             String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
-            String status = repairorder.getStatus() == null ? "未处理" : repairorder.getStatus();
+            String status = repairorder.getStatus().getText();
             String descriptionText = repairorder.getDescriptionText() == null ? "-" : repairorder.getDescriptionText();
             String createTime = repairorder.getCreateTime() == null ? "-" : sdf.format(repairorder.getCreateTime());
             String updateTime = repairorder.getUpdateTime() == null ? "-" : sdf.format(repairorder.getUpdateTime());
@@ -738,7 +727,7 @@ public class Main {
                 }
             }
 
-            String status = (sTatus == 1) ? "正在处理" : "处理完成";
+            RepairStatus status = RepairStatus.fromChoice(sTatus);
 
             if(repairorderservice.updateRepairorder(status,orderId)){
                 System.out.println("更新报修单状态成功！");

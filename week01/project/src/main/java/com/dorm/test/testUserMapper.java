@@ -3,6 +3,7 @@ package com.dorm.test;
 import java.util.*;
 import java.time.Instant;
 import com.dorm.entity.Repairorder;
+import com.dorm.enums.Role;
 import com.dorm.mapper.RepairorderMapper;
 import com.dorm.entity.User;
 import com.dorm.mapper.UserMapper;
@@ -32,7 +33,7 @@ public class testUserMapper {
             user.setId("3225004433");
             user.setName("test001");
             user.setPassword("123456");
-            user.setRole("student");
+            user.setRole(Role.STUDENT);
 
             Repairorder repairorder = new Repairorder();
             repairorder.setId("3225004433");

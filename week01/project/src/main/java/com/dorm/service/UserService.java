@@ -1,16 +1,19 @@
 package com.dorm.service;
 
+import com.dorm.enums.Role;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
+
 import com.dorm.entity.User;
 import com.dorm.mapper.UserMapper;
 
 public class UserService {
-    private SqlSessionFactory sqlSessionFactory;
+    private final SqlSessionFactory sqlSessionFactory;
 
     public UserService() {
         try {
@@ -18,11 +21,13 @@ public class UserService {
             InputStream inputStream = Resources.getResourceAsStream(resource);
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
         } catch (IOException e) {
+            System.err.println(e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
-    public boolean register(String role, String id, String name, String password) {
+    public boolean register(Role role, String id, String name, String password) {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             UserMapper mapper = session.getMapper(UserMapper.class);
             // 1. 检查用户名是否存在
@@ -53,7 +58,7 @@ public class UserService {
                 return existing;
             }
         }
-        return null;
+        return new User();
     }
 
     public boolean updater(User currentUser, String dormBuilding, String roomNumber, String password) {

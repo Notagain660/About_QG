@@ -29,8 +29,8 @@ public class Connectiontest {
 
             // 5. （可选）试试能不能查询点东西来彻底验证
             // 因为还没写Mapper，这里先注释掉
-            // List<User> users = session.selectList("com.dorm.mapper.UserMapper.selectAll");
-            // System.out.println("查询到的用户数量: " + users.size());
+            List<User> users = session.selectList("com.dorm.mapper.UserMapper.selectAll");
+            System.out.println("查询到的用户数量: " + users.size());
 
         } catch (Exception e) {
             // 如果报错了，会进到这里来
