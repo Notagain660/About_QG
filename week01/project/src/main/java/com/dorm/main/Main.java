@@ -38,7 +38,6 @@ public class Main {
 
           switch (menuChoice) {
               case 1 -> {
-                  scanner.nextLine();
                   clear();
                   currentUser = login(scanner, userservice);
                   clear();
@@ -54,7 +53,6 @@ public class Main {
               }
 
               case 2 -> {
-                  scanner.nextLine();
                   clear();
                   ExceptionDeal.deal(() ->  Register(scanner, userservice));
               }
@@ -289,7 +287,7 @@ public class Main {
 
         List<Repairorder> r = repairorderservice.checkMyrepairorder(currentUser);
 
-        System.out.printf("%-12s %-10s %-10s %-5s %-20s %-20s %-20s\n", "学号", "报修单号", "设备类型", "状态", "创建时间", "最新提交时间", "完成时间");
+        System.out.printf("%-12s %-11s %-14s %-7s %-20s %-20s %-20s\n", "学号", "报修单号", "设备类型", "状态", "创建时间", "最新提交时间", "完成时间");
 
         for (Repairorder repairorder : r) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -299,7 +297,7 @@ public class Main {
             String updateTime = repairorder.getUpdateTime()  == null ? "-" : sdf.format(repairorder.getUpdateTime());
             String processTime = repairorder.getProcessTime() == null ? "-" : sdf.format(repairorder.getProcessTime());
 
-            System.out.printf("%-12s %-10d %-10s %-5s %-20s %-20s %-20s\n", repairorder.getId(), repairorder.getOrderId(), deviceType, status, createTime, updateTime, processTime);
+            System.out.printf("%-12s %-11d %-14s %-7s %-20s %-20s %-20s\n", repairorder.getId(), repairorder.getOrderId(), deviceType, status, createTime, updateTime, processTime);
 
         }
 
@@ -331,17 +329,27 @@ public class Main {
                 comments = repairorder.getComments() == null ? "-" : repairorder.getComments();
             }
 
-            System.out.printf("学号/工号：" + repairorder.getId());
-            System.out.printf("报修单号：" + repairorder.getOrderId());
-            System.out.printf("宿舍号：" + dormBuilding + roomNumber);
-            System.out.printf("联系方式（电话号码：" + phoneNumber);
-            System.out.printf("设备类型：" + deviceType);
-            System.out.printf("状态：" + repairorder.getStatus().getText());
-            System.out.printf("问题描述：" + descriptionText);
-            System.out.printf("创建时间：" + createTime);
-            System.out.printf("最新提交时间：" + updateTime);
-            System.out.printf("处理完成时间：" + processTime);
-            System.out.printf("维修评价：" + comments);
+            System.out.printf("学号/工号：" + repairorder.getId() + "\n");
+            System.out.printf("报修单号：" + repairorder.getOrderId() + "\n");
+            System.out.printf("宿舍号：" + dormBuilding + roomNumber + "\n");
+            System.out.printf("联系方式（电话号码：" + phoneNumber + "\n");
+            System.out.printf("设备类型：" + deviceType + "\n");
+            System.out.printf("状态：" + repairorder.getStatus().getText() + "\n");
+            System.out.printf("问题描述：" + descriptionText + "\n");
+            System.out.printf("创建时间：" + createTime + "\n");
+            System.out.printf("最新提交时间：" + updateTime + "\n");
+            System.out.printf("处理完成时间：" + processTime + "\n");
+            System.out.printf("维修评价：" + comments + "\n");
+
+            if(repairorder.getStatus() == RepairStatus.COMPLETED) {
+                System.out.println("请输入评价：");
+                comments = scanner.nextLine();
+                if(repairorderservice.updateRepairorder(repairorder.getStatus(), orderId, comments)){
+                    System.out.println("上传报修评价成功！");
+                } else {
+                    System.out.println("上传报修评价失败，请稍后再试！");
+                }
+            }
 
         }
 
@@ -355,11 +363,11 @@ public class Main {
 
         System.out.println("请输入需要取消的报修单号：");
         Long orderId = ScanfNumberResult.getValidLong(scanner, "报修单号不存在，请重新输入：", repairorderservice::loginRepairorder);
-
+        String comments = scanner.nextLine();
 
         RepairStatus status = RepairStatus.CANCELED;
 
-            if(repairorderservice.updateRepairorder(status,orderId)){
+            if(repairorderservice.updateRepairorder(status,orderId, comments)){
                 System.out.println("取消报修单成功！");
             } else {
                 System.out.println("取消报修单失败，请稍后再试！");
@@ -434,7 +442,6 @@ public class Main {
 
         int wayChoice = ScanfNumberResult.getInt(scanner, n -> n >= 1 && n <= 6);
 
-        while(true){
             switch (wayChoice) {
                 case 1 -> {
                     clear();
@@ -535,7 +542,6 @@ public class Main {
                 case 6 -> {
                     clear();
                     System.out.println("感谢您的使用！");
-                    return;
                 }
 
                 default -> {
@@ -543,7 +549,7 @@ public class Main {
                     System.out.println("输入无效，请重新输入：");
                 }
             }
-        }
+
 
 
     }
@@ -572,18 +578,18 @@ public class Main {
                 comments = "-";
             }
 
-            System.out.printf("学号/工号：" + repairorder.getId());
-            System.out.printf("报修单号：" + repairorder.getOrderId());
-            System.out.printf("宿舍号：" + dormBuilding + roomNumber);
-            System.out.printf("联系方式（电话号码：" + phoneNumber);
-            System.out.printf("设备类型：" + deviceType);
-            System.out.printf("状态：" + status);
-            System.out.printf("问题描述：" + descriptionText);
-            System.out.printf("创建时间：" + createTime);
-            System.out.printf("最新提交时间：" + updateTime);
-            System.out.printf("处理完成时间：" + processTime);
-            System.out.println("优先级：" + prorityLevel);
-            System.out.printf("维修评价：" + comments);
+            System.out.printf("学号/工号：" + repairorder.getId() + "\n");
+            System.out.printf("报修单号：" + repairorder.getOrderId() + "\n");
+            System.out.printf("宿舍号：" + dormBuilding + roomNumber + "\n");
+            System.out.printf("联系方式（电话号码：" + phoneNumber + "\n");
+            System.out.printf("设备类型：" + deviceType + "\n");
+            System.out.printf("状态：" + status + "\n");
+            System.out.printf("问题描述：" + descriptionText + "\n");
+            System.out.printf("创建时间：" + createTime + "\n");
+            System.out.printf("最新提交时间：" + updateTime + "\n");
+            System.out.printf("处理完成时间：" + processTime + "\n");
+            System.out.println("优先级：" + prorityLevel + "\n");
+            System.out.printf("维修评价：" + comments + "\n");
 
             System.out.println("请输入该报修单的优先级：");
             String priorityLevel = scanner.nextLine();
@@ -607,8 +613,8 @@ public class Main {
             int sTatus = ScanfNumberResult.getInt(scanner, n -> n == 1 || n == 2);
 
             RepairStatus status = RepairStatus.fromChoice(sTatus);
-
-            if(repairorderservice.updateRepairorder(status,orderId)){
+            String comments = scanner.nextLine();
+            if(repairorderservice.updateRepairorder(status, orderId, comments)){
                 System.out.println("更新报修单状态成功！");
             } else {
                 System.out.println("更新报修单状态失败，请稍后再试！");

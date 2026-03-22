@@ -104,7 +104,7 @@ public class RepairorderService {
         }
     }
 
-    public boolean updateRepairorder(RepairStatus status, Long orderId) {
+    public boolean updateRepairorder(RepairStatus status, Long orderId, String comments) {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             RepairorderMapper mapper = session.getMapper(RepairorderMapper.class);
             Repairorder repairorder = mapper.selectByOrderId(orderId);
@@ -113,6 +113,7 @@ public class RepairorderService {
 
             repairorder.setStatus(status);
             repairorder.setUpdateTime(new Date());
+            repairorder.setComments(comments);
             mapper.updateRepairorder(repairorder);
 
             if(status == RepairStatus.COMPLETED) {
@@ -176,7 +177,9 @@ public class RepairorderService {
 
             repairorder.setPriorityLevel(priorityLevel);
             mapper.updateRepairorder(repairorder);
-
+            if (previousPriorityLevel == null) {
+                return true;
+            }
             return !previousPriorityLevel.equals(priorityLevel);
         }catch (PersistenceException e) {
             // 记录日志
