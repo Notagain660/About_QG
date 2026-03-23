@@ -1,5 +1,4 @@
-# XML
-1. **配置数据源 (`dataSource`)**：
+ 1. **配置数据源 (`dataSource`)**：
     
     - 紧接着，`<dataSource type="POOLED">`元素定义了如何连接到具体的数据库。`type="POOLED"`表示使用数据库连接池技术来提高性能。
         
@@ -15,7 +14,9 @@
         -   ````
          {
         <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/dorm_repair?      useSSL=false&amp;serverTimezone=UTC"/>
+        <property name="url"value="jdbc:mysql:
+        //localhost:3306/dorm_repair?      useSSL=false&amp;
+        serverTimezone=UTC"/>
         } 
         ````   
 2. **预留映射器位置 (`mappers`)**：   
@@ -49,70 +50,4 @@
     - `<maven.compiler.source>21</maven.compiler.source>` 和 `<maven.compiler.target>21</maven.compiler.target>`：告诉 Maven 的编译插件，项目的源代码应该使用 **Java 21** 的语法来编译，并且生成的字节码也应该兼容 Java 21 版本。
     - `<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>`：指定了项目源代码文件的编码格式为 UTF-8，避免出现乱码。
 
-
-
-# Git&GitHub
-**配置身份**:
-- `git config --global user.name "Github 名称"`
-- `git config --global user.email "github mail"`
-**初始化本地仓库**
-- 如`cd "D:/Users/starter······"`
-- `git init`
-**添加文件和提交**
-- `git add .`，add后面加目标文件所在目录是部分上传，这个是全部上传
-- `git commit -m "first commit"`像这样，双引号里是提交的描述
-**关联远程仓库并提交**
-- GitHub新建空白仓库
-- ```{
-   git remote add origin https://github.com/你的用户名/仓库名.git
-   git branch -M main
-   git push -u origin main//第一次，后面直接git push就行
-   }
-  ```
-
-**配置网络环境**
-- `git config --global https.proxy http://127.0.0.1:端口地址`
-- `git config --global --unset https.proxy`
-- `curl -x http://127.0.0.1:端口地址 https://github.com -I`测试代理是否工作
-**修改根目录**
-在想要换成的根目录下初始化本地新仓库，关联想换根目录的远程仓库，强制推送（会丢失原远程仓库里面的数据）
-示例：`git branch -M main`
-`git push -u origin main --force`
-**删除远程仓库**
-`git remote rm origin        # 删除旧的`
-`git remote add origin 新URL # 添加新的`
-
-
-# MyBatis
-> “mybatis起到一个作为数据库MySQL和dorm这个层级的接口的作用（？）”
-
- MyBatis 是一个**ORM（对象关系映射）框架**，它的作用就是：
-
-- 让你用Java对象（如`User`）操作数据库表（如`user`），不用写繁琐的JDBC代码。
-- 你只需要定义Mapper接口（比如 `UserMapper.java`），然后在XML里写SQL语句，MyBatis就会自动实现接口方法，执行SQL并返回结果。
-
-**类比C语言：**  
-相当于你写了一个库，它帮你把数据库操作封装成函数，你只需要调用 `insertUser(user)`，它自动处理连接、语句、结果集。你不再需要手动 `fopen`、`fwrite`、`fclose`。
-
-
-# Maven
-> “maven相当于帮你把要用的外部库统统一把梭了，你只需要在项目配置maven（？）”
-
-Maven 是一个**项目管理和构建工具**，核心功能：
-
-- **依赖管理**：你在 `pom.xml` 里写 `<dependency>`，Maven自动从中央仓库下载对应的jar包（如MySQL驱动、MyBatis），并加入到项目类路径中。不用手动下载和复制。
-- **项目构建**：编译、打包、运行测试等。
-    
-**类比C语言：**
-
-- 传统C项目：你需要手动下载第三方库（比如 `libmysql`），把 `.h` 和 `.a/.so` 文件放到项目里，然后在编译时指定路径。
-- Maven相当于一个**包管理器**（像Linux的 `apt`），加上一个**自动化构建工具**（像 `make` 但更强大）。你只需声明依赖，它全自动处理。
-**外部库用来干嘛？**
-
-- `mysql-connector-j`：让Java能连接MySQL数据库（相当于C语言的MySQL C API库）。
-- `mybatis`：让你能用更简单的方式操作数据库（相当于一个封装好的数据库操作框架）。
-
-C语言里需要自己找对应的库，然后处理链接。Java不用。
-
-# MySQL
 
