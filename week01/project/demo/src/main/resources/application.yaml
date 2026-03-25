@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: demo
+  datasource:
+    url: jdbc:mysql://localhost:3306/dorm_repair?useSSL=false&serverTimezone=UTC
+    username: root
+    password: Gq39k1oP17
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+    mapper-locations: classpath:com/dorm/mapper/*.xml
+    type-aliases-package: com.example.demo.entity
+    configuration:
+      map-underscore-to-camel-case: true
+pebble:
+    # 默认为".peb"，改为"":
+    suffix:
+    # 开发阶段禁用模板缓存:
+    cache: false
+server:
+  port: 8081
+  address: 127.0.0.1
+
+user:
+  id: 3225004433
+  name:
+  password:
+  role:
+  dormBuilding:
+  roomNumber:
+

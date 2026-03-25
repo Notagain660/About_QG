@@ -1,0 +1,9 @@
+POST http://localhost:8081/api/user/register
+Content-Type: application/json
+
+{
+"id": "3225001234",
+"name": "张三",
+"password": "123456",
+"role": "STUDENT"
+}

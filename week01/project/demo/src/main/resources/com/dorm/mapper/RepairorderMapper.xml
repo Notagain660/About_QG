@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.RepairorderMapper">
+
+    <insert id="insertRepairorder" parameterType="com.example.demo.entity.Repairorder" useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO repairorder (id, dormBuilding, roomNumber, phoneNumber, deviceType, status, descriptionText, createTime, updateTime, processTime, priorityLevel, comments)
+        VALUES (#{id}, #{dormBuilding}, #{roomNumber}, #{phoneNumber}, #{deviceType}, #{status}, #{descriptionText}, Now(), Now(), NULL, #{priorityLevel}, #{comments})
+    </insert>
+
+    <select id="selectByUserId" parameterType="string" resultType="com.example.demo.entity.Repairorder">
+        SELECT * FROM repairorder WHERE id = #{id} ORDER BY orderId
+    </select>
+
+    <select id="selectAll" resultType="com.example.demo.entity.Repairorder">
+        SELECT * FROM repairorder ORDER BY orderId
+    </select>
+
+    <select id="selectByOrderId" parameterType="long" resultType="com.example.demo.entity.Repairorder">
+        SELECT * FROM repairorder WHERE orderId = #{orderId}
+    </select>
+
+    <select id="selectByStatus" parameterType="string" resultType="com.example.demo.entity.Repairorder">
+        SELECT * FROM repairorder WHERE status = #{status}
+    </select>
+
+
+    <update id="updateRepairorder" parameterType="com.example.demo.entity.Repairorder">
+        UPDATE repairorder
+        SET
+        phoneNumber = #{phoneNumber},
+        descriptionText = #{descriptionText},
+        status = #{status},
+        updateTime = Now(),
+        processTime = Now()
+        WHERE orderId = #{orderId}
+    </update>
+
+    <delete id="deleteByOrderId" parameterType="com.example.demo.entity.Repairorder">
+        DELETE FROM repairorder WHERE orderId = #{orderId}
+    </delete>
+
+</mapper>
