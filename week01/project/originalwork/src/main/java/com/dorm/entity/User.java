@@ -5,7 +5,7 @@ import com.dorm.enums.Role;
 public class User {
     // 属性：和数据库表字段对应
     private String id;
-    private String name;//从来没用到。
+    private String name;
     private String password;
     private Role role; // 角色：student 或 admin
     private String dormBuilding; // 宿舍楼，可为空
