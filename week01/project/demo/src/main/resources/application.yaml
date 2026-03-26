@@ -12,11 +12,7 @@ mybatis:
     type-aliases-package: com.example.demo.entity
     configuration:
       map-underscore-to-camel-case: true
-pebble:
-    # 默认为".peb"，改为"":
-    suffix:
-    # 开发阶段禁用模板缓存:
-    cache: false
+
 server:
   port: 8081
   address: 127.0.0.1
@@ -28,4 +24,12 @@ user:
   role:
   dormBuilding:
   roomNumber:
+
+jwt:
+  secretkey: Gq39k1Op05
+
+logging:
+  level:
+    root: INFO
+    com.example.demo: DEBUG
 

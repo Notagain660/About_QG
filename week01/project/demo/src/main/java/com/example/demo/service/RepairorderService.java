@@ -6,21 +6,24 @@ import com.example.demo.entity.User;
 
 import com.example.demo.enums.RepairStatus;
 import com.example.demo.mapper.RepairorderMapper;
+import com.example.demo.mapper.UserMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class RepairorderService {
 
-    @Autowired
-    private RepairorderMapper repairorderMapper;
+    private final RepairorderMapper repairorderMapper;
+    private final UserMapper userMapper;
 
-    public boolean newRepairorder(User currentUser, String phoneNumber, String deviceType, String descriptionText) {
+    public boolean newRepairorder(String id, String phoneNumber, String deviceType, String descriptionText) {
 
             Repairorder repairorder = new Repairorder();
 
-            String id = currentUser.getId();
+            User currentUser = userMapper.selectById(id);
 
             String dormBuilding = currentUser.getDormBuilding();
             String roomNumber = currentUser.getRoomNumber();

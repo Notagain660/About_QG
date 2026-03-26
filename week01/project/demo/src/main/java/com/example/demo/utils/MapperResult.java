@@ -11,8 +11,8 @@ public class MapperResult<T> {
     }
 
     // 静态工厂方法
-    public static <T> MapperResult<T> success(T data) {
-        return new MapperResult<>(200, "success", data);
+    public static <T> MapperResult<T> success(String message, T data) {
+        return new MapperResult<>(200, message, data);
     }
 
     public static <T> MapperResult<T> error(String message) {

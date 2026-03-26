@@ -7,3 +7,24 @@ Content-Type: application/json
 "password": "123456",
 "role": "STUDENT"
 }
+
+### 1. 登录获取 token
+POST http://localhost:8081/api/user/login
+Content-Type: application/json
+
+{
+  "id": "3225001234",
+  "password": "123456"
+}
+
+
+### 2. 不带 token 访问受保护接口（应返回 401）
+GET http://localhost:8081/api/user/test/auth
+
+### 3. 带错误 token 访问（应返回 401）
+GET http://localhost:8081/api/user/test/auth
+Authorization: Bearer wrong.token.here
+
+### 4. 带正确 token 访问（应返回 200，且能看到用户信息）
+GET http://localhost:8081/api/user/test/auth
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiU1RVREVOVCIsImV4cGlyZV90aW1lIjoxNzc1MTI2NTU4NDkwLCJpc3N1ZV90aW1lIjoiMjAyNi0wMy0yNiAxODo0MjozOCIsImlkIjoiMzIyNTAwMTIzNCJ9.xmP1tnS8AvAX4ikKUAiY5lQ_-m_gFEARGn-Tn62Pv7E
