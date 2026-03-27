@@ -8,7 +8,7 @@
     </insert>
 
     <select id="selectByUserId" parameterType="string" resultType="com.example.demo.entity.Repairorder">
-        SELECT * FROM repairorder WHERE id = #{id} ORDER BY orderId
+        SELECT * FROM repairorder WHERE id = #{id} ORDER BY orderId DESC
     </select>
 
     <select id="selectAll" resultType="com.example.demo.entity.Repairorder">

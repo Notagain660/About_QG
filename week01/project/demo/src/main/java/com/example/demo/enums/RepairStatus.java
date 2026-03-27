@@ -1,5 +1,7 @@
 package com.example.demo.enums;
 
+import java.util.Arrays;
+
 public enum RepairStatus {
     PENDING("未处理"),
     PROCESSING("正在处理"),
@@ -22,6 +24,15 @@ public enum RepairStatus {
             case 2 -> COMPLETED;
             default -> throw new IllegalArgumentException("无效状态选择");
         };
+    }
+
+    public static RepairStatus fromText(String text) {
+         for (RepairStatus status : values()) {
+            if (status.getText().equals(text)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("未知的状态：" + text);
     }
 
 

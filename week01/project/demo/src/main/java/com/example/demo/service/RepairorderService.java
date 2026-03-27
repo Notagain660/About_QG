@@ -19,7 +19,7 @@ public class RepairorderService {
     private final RepairorderMapper repairorderMapper;
     private final UserMapper userMapper;
 
-    public boolean newRepairorder(String id, String phoneNumber, String deviceType, String descriptionText) {
+    public long newRepairorder(String id, String phoneNumber, String deviceType, String descriptionText) {
 
             Repairorder repairorder = new Repairorder();
 
@@ -41,22 +41,21 @@ public class RepairorderService {
             repairorderMapper.insertRepairorder(repairorder);
 
             Repairorder repairorder2 = repairorderMapper.selectByOrderId(repairorder.getOrderId());
-            return repairorder2 != null;
+            if(repairorder2 != null){
+                return repairorder.getOrderId();
+            }
+            return 0;
     }
 
     public List<Repairorder> checkMyrepairorder(User currentUser) {
-
             String id = currentUser.getId();
             return repairorderMapper.selectByUserId(id);
-
     }
 
     public Repairorder checkRepairorder(Long orderId) {
-
             Repairorder repairorder = repairorderMapper.selectByOrderId(orderId);
             repairorderMapper.selectByOrderId(orderId);
             return repairorder;
-
     }
 
     public boolean updateRepairorder(RepairStatus status, Long orderId, String comments) {

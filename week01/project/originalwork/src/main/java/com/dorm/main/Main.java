@@ -13,6 +13,7 @@ import com.dorm.enums.RepairStatus;
 import com.dorm.utils.LoginResult;
 import com.dorm.utils.ScanfNumberResult;
 import com.dorm.utils.ExceptionDeal;
+import org.jspecify.annotations.NonNull;
 
 public class Main {
     public static void main(String[] args) {
@@ -102,22 +103,28 @@ public class Main {
             System.out.println("请输入密码：");
             password = scanner.nextLine();//待优化：判断密码强度和加密
 
-            System.out.println("请确认密码：");
-            String password1 = scanner.nextLine();
+        password = getString(scanner, password);
 
-            while (!password.equals(password1)) {
-                System.out.println("请重新输入密码：");
-                password = scanner.nextLine();
-                System.out.println("请确认密码：");
-                password1 = scanner.nextLine();
-            }
-
-            if(userservice.register(role, id, name, password)) {
+        if(userservice.register(role, id, name, password)) {
                 System.out.println("注册成功！请返回主界面登录。");
             }
             else {
                 System.out.println("注册失败，请返回主界面重新注册。");
             }
+    }
+
+    @NonNull
+    private static String getString(Scanner scanner, String password) {
+        System.out.println("请确认密码：");
+        String password1 = scanner.nextLine();
+
+        while (!password.equals(password1)) {
+            System.out.println("请重新输入密码：");
+            password = scanner.nextLine();
+            System.out.println("请确认密码：");
+            password1 = scanner.nextLine();
+        }
+        return password;
     }
 
     public static User login(Scanner scanner, UserService userservice) {
@@ -247,15 +254,7 @@ public class Main {
 
         System.out.println("请输入新密码：");
         String password = scanner.nextLine();
-        System.out.println("请确认密码：");
-        String password1 = scanner.nextLine();
-
-        while (!password.equals(password1)) {
-         System.out.println("请重新输入密码：");
-         password = scanner.nextLine();
-         System.out.println("请确认密码：");
-         password1 = scanner.nextLine();
-     }
+        password = getString(scanner, password);
         if(userservice.updater(currentUser, dormBuilding, roomNumber, password)){
             currentUser.setPassword(password);
             System.out.println("密码修改成功！");
@@ -290,7 +289,7 @@ public class Main {
         System.out.printf("%-12s %-11s %-14s %-7s %-20s %-20s %-20s\n", "学号", "报修单号", "设备类型", "状态", "创建时间", "最新提交时间", "完成时间");
 
         for (Repairorder repairorder : r) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            var sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             String deviceType = repairorder.getDeviceType() == null ? "-" : repairorder.getDeviceType();
             String status = repairorder.getStatus().getText();
             String createTime = repairorder.getCreateTime()  == null ? "-" : sdf.format(repairorder.getCreateTime());
