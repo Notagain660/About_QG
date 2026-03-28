@@ -19,8 +19,8 @@
         SELECT * FROM repairorder WHERE orderId = #{orderId}
     </select>
 
-    <select id="selectByStatus" parameterType="string" resultType="com.example.demo.entity.Repairorder">
-        SELECT * FROM repairorder WHERE status = #{status}
+    <select id="selectByStatus" parameterType="com.example.demo.enums.RepairStatus" resultType="com.example.demo.entity.Repairorder">
+        SELECT * FROM repairorder WHERE status = #{status, jdbcType=VARCHAR}
     </select>
 
 
@@ -30,6 +30,8 @@
         phoneNumber = #{phoneNumber},
         descriptionText = #{descriptionText},
         status = #{status},
+        priorityLevel = #{priorityLevel},
+        comments = #{comments},
         updateTime = Now(),
         processTime = Now()
         WHERE orderId = #{orderId}

@@ -20,8 +20,8 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         // 放行登录和注册接口（不需要token）
         String uri = request.getRequestURI();
-        if (uri.equals("/api/user/login") || uri.equals("/api/user/register")) {
-            System.out.println("Request URI: " + uri);
+        System.out.println("Request URI: " + uri);
+        if (uri.equals("/api/register") || uri.equals("/api/login") || uri.equals("/api")) {
             return true;
         }
 

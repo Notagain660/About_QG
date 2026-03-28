@@ -87,3 +87,4 @@ ERROR 1701 (42000): Cannot truncate a table referenced in a foreign key constrai
 删除数据表内容：`DELETE FROM repairorder（表名）;
 注意：有映射关系的表先删子表再删母表
 
+展示时区：SHOW VARIABLES LIKE '%time_zone%';

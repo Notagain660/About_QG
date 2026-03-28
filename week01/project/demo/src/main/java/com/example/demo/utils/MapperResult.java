@@ -20,8 +20,8 @@ public class MapperResult<T> {
         return new MapperResult<>(200, message, data);
     }
 
-    public static <T> MapperResult<T> error(String message) {
-        return new MapperResult<>(400, message, null);
+    public static <T> MapperResult<T> error(int code, String message) {
+        return new MapperResult<>(code, message, null);
     }
 
 }

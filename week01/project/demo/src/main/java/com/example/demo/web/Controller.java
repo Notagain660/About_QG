@@ -16,6 +16,7 @@ import com.example.demo.utils.LoginResult;
 import com.example.demo.utils.MapperResult;
 import com.example.demo.verifier.UserContext;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +39,23 @@ public class Controller {
     private final RepairorderService repairorderService;
     private final RepairorderMapper repairorderMapper;
 
+    @Value("${jwt.secretkey}")//value注解只能用在Spring管理的Bean的字段或方法参数上，且必须直接放在字段上否则无法注入
     private String secretkey;
-    @Value("${jwt.secretkey}")//value注解只能用在Spring管理的Bean的字段或方法参数上
 
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
+
+    @PostConstruct
+    public void init() {
+        System.out.println("secretkey = " + secretkey);
+    }
+
+
+    @GetMapping("/test/auth")
+    public MapperResult<User> testAuth() {
+        String userId = UserContext.getCurrentUser().getUserId();
+        User user = userMapper.selectById(userId);
+        return MapperResult.success("获取用户信息成功", user);
+    }
 
     @GetMapping
     public String trial(){
@@ -63,7 +77,7 @@ public class Controller {
         if (success) {
             return new MapperResult<>(200, "注册成功", null);
         } else  {
-            return MapperResult.error("注册失败");
+            return MapperResult.error(400,"注册失败");
         }
 
     }
@@ -91,7 +105,7 @@ public class Controller {
 
             return MapperResult.success("登录成功", data);
         } else {
-            return MapperResult.error(logintrial.message());//user是null，message来判断不同原因导致的失败
+            return MapperResult.error(403, logintrial.message());//user是null，message来判断不同原因导致的失败
         }
     }
 
@@ -105,7 +119,7 @@ public class Controller {
         if (x) {
             return new MapperResult<>(200, "更新成功", null);
         } else {
-            return MapperResult.error("更新失败");
+            return MapperResult.error(400,"更新失败");
         }
     }
 
@@ -115,16 +129,16 @@ public class Controller {
         String oldPassword = params.get("oldPassword");//应该是检验是不是用户本人操作
         String newPassword = params.get("newPassword");
         if(oldPassword.isEmpty() || newPassword.isEmpty()){
-            return MapperResult.error("新旧密码不能为空");
+            return MapperResult.error(400,"新旧密码不能为空");
         } else if(oldPassword.equals(newPassword)){
-            return MapperResult.error("两次密码不能为同一个");
+            return MapperResult.error(400,"两次密码不能为同一个");
         } else {
             User user = userMapper.selectById(UserContext.getCurrentUser().getUserId());
             if(!user.getPassword().equals(oldPassword)){
-                return MapperResult.error("旧密码错误");
+                return MapperResult.error(400,"旧密码错误");
             } else {
                 boolean x = userService.updater(user, user.getDormBuilding(), user.getRoomNumber(), newPassword);
-                return x ? MapperResult.success("修改成功", null) : MapperResult.error("修改失败");
+                return x ? MapperResult.success("修改成功", null) : MapperResult.error(400,"修改失败");
             }
         }
     }
@@ -146,7 +160,7 @@ public class Controller {
         String descriptionText = params.getOrDefault("descriptionText", "").toString();
 
         if(phoneNumber.isEmpty() || descriptionText.isEmpty() || deviceType.isEmpty()){
-            return MapperResult.error("必填项不能为空");
+            return MapperResult.error(400,"必填项不能为空");
         }
 
         long orderId = repairorderService.newRepairorder(UserContext.getCurrentUser().getUserId(),
@@ -155,7 +169,7 @@ public class Controller {
 
             return new MapperResult<>(200, "创建报修单成功", orderId);
         } else {
-            return MapperResult.error("创建报修单失败");
+            return MapperResult.error(400,"创建报修单失败");
         }
     }
 
@@ -174,10 +188,10 @@ public class Controller {
         //当前用户
 
         if(r == null){
-            return MapperResult.error("报修单不存在");
-        } else if(user.getRole() != Role.ADMIN && r.getId().equals(user.getId()) ){
+            return MapperResult.error(400, "报修单不存在");
+        } else if(!user.getRole().equals(Role.ADMIN)  && !r.getId().equals(user.getId()) ){
             //当学生权限时，校验报修单上的id和当前用户id是否一致
-                return MapperResult.error("非本人报修单");
+                return MapperResult.error(400,"非本人报修单");
         }
         return MapperResult.success("访问单个表单成功", r);
     }
@@ -189,15 +203,15 @@ public class Controller {
         Repairorder r = repairorderMapper.selectByOrderId(orderId);
 
         if(r == null){
-            return MapperResult.error("报修单不存在");
+            return MapperResult.error(400, "报修单不存在");
         } else if(r.getStatus() != RepairStatus.COMPLETED){
-            return MapperResult.error("维修未完成");
+            return MapperResult.error(400, "维修未完成");
         }else if (!r.getId().equals(UserContext.getCurrentUser().getUserId())) {
-            return MapperResult.error("非本人报修单");
+            return MapperResult.error(400,"非本人报修单");
         } else {
             boolean x = repairorderService.updateRepairorder(r.getStatus(), orderId, comments);
             return x ? MapperResult.success("更新成功", null)
-                    : MapperResult.error("更新失败");
+                    : MapperResult.error(400,"更新失败");
         }
     }
 
@@ -208,15 +222,15 @@ public class Controller {
         String id1 = UserContext.getCurrentUser().getUserId();
         Repairorder r = repairorderMapper.selectByOrderId(orderId);
         if(r == null){
-            return MapperResult.error("报修单不存在");
+            return MapperResult.error(400,"报修单不存在");
         } else if(r.getStatus() != RepairStatus.PENDING){
-            return MapperResult.error("报修正在处理");
-        } else if(UserContext.getCurrentUser().getRole().equals("STUDENT") || !id.equals(id1)){
-            return MapperResult.error("非本人报修单");
+            return MapperResult.error(400,"报修正在处理");
+        } else if(UserContext.getCurrentUser().getRole().equals("STUDENT") && !id.equals(id1)){
+            return MapperResult.error(400,"非本人报修单");
         } else  {
             boolean x = repairorderService.updateRepairorder(RepairStatus.CANCELED, orderId, r.getComments());
             return x ? MapperResult.success("取消成功", null) :
-                    MapperResult.error("取消失败");
+                    MapperResult.error(400,"取消失败");
         }
     }
 
@@ -228,17 +242,13 @@ public class Controller {
         List<Repairorder> r;
 
         if (!"ADMIN".equals(role)) {
-            return MapperResult.error("无权限访问");
+            return MapperResult.error(400,"无权限访问");
         }
 
-        if(status.isBlank()){//blank方法把空字符串的情况也包括了（覆盖empty）
+        if(status == null || status.isBlank()){//blank方法把空字符串的情况也包括了（覆盖empty）
             r =  repairorderMapper.selectAll();
         }else {
-            try {
-                rr = RepairStatus.valueOf(status.toUpperCase()); //枚举名全是大写
-            } catch (IllegalArgumentException e) {
-                return MapperResult.error("状态参数无效");
-            }
+            rr = RepairStatus.valueOf(status.toUpperCase()); //枚举名全是大写
 
             r =  repairorderMapper.selectByStatus(rr);
         }
@@ -253,45 +263,38 @@ public class Controller {
         Repairorder r = repairorderMapper.selectByOrderId(orderId);
         RepairStatus sTatus;
         if(r == null){
-            return MapperResult.error("报修单不存在");
+            return MapperResult.error(400,"报修单不存在");
         } else if(!"ADMIN".equals(UserContext.getCurrentUser().getRole())){
-            return MapperResult.error("无权限修改");
+            return MapperResult.error(400,"无权限修改");
         } else {
-            try{
-                sTatus = RepairStatus.valueOf(status.toUpperCase());//前端要传英文参数
-            }catch (IllegalArgumentException e) {
-                return MapperResult.error("状态参数无效");
-            }
+            sTatus = RepairStatus.valueOf(status.toUpperCase());//前端要传英文参数
 
             boolean x = repairorderService.updateRepairorder(sTatus, orderId, r.getComments());
             return x ? MapperResult.success("修改状态成功", null) :
-                    MapperResult.error("修改状态失败");
+                    MapperResult.error(400,"修改状态失败");
         }
     }
 
 
     @PutMapping("/{orderId}/priority")
-    public MapperResult<Object> priority(@PathVariable long orderId, @RequestParam String priority) {
+    public MapperResult<Object> priority(@PathVariable long orderId, @RequestBody  Map<String, Object> params) {
+        String priority = (String) params.getOrDefault("priority", "");
         Repairorder r = repairorderMapper.selectByOrderId(orderId);
 
-        if(priority == null || priority.isBlank()){
-            return MapperResult.error("优先级不能为空");
+        if(priority.isBlank()){
+            return MapperResult.error(400, "优先级不能为空");
         }
         boolean x;
         if(r == null){
-            return MapperResult.error("报修单不存在");
+            return MapperResult.error(400, "报修单不存在");
         } else if(!"ADMIN".equals(UserContext.getCurrentUser().getRole())){
-            return MapperResult.error("无权限设置优先级");
+            return MapperResult.error(400, "无权限设置优先级");
         } else {
-            try{
-                x = repairorderService.finishRepairorder(priority, orderId);
-            }catch(Exception e){
-                log.error("错误信息", e);
-                return MapperResult.error("请求参数无效");
-            }
+
+            x = repairorderService.finishRepairorder(priority, orderId);
 
             return x ? MapperResult.success("设置优先级成功", null) :
-                    MapperResult.error("设置优先级失败");
+                    MapperResult.error(400,"设置优先级失败");
         }
     }
 
@@ -301,18 +304,14 @@ public class Controller {
         Repairorder r = repairorderMapper.selectByOrderId(orderId);
         boolean x;
         if(r == null){
-            return MapperResult.error("报修单不存在");
+            return MapperResult.error(400, "报修单不存在");
         } else if(!"ADMIN".equals(UserContext.getCurrentUser().getRole())){
-            return MapperResult.error("无权限删除");
+            return MapperResult.error(400,"无权限删除");
         } else {
-            try{
-                x = repairorderService.deleteRepairorder(orderId);
-            }catch(Exception e){
-                return MapperResult.error("请求参数无效");
-            }
+            x = repairorderService.deleteRepairorder(orderId);
 
             return x ? MapperResult.success("删除成功", null) :
-                    MapperResult.error("删除失败");
+                    MapperResult.error(400,"删除失败");
         }
     }
 }

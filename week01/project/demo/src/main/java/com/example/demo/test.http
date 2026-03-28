@@ -1,4 +1,4 @@
-POST http://localhost:8081/api/user/register
+POST http://localhost:8081/api/register
 Content-Type: application/json
 
 {
@@ -8,23 +8,124 @@ Content-Type: application/json
 "role": "STUDENT"
 }
 
+
+### 基础测试
+GET http://localhost:8081/api
+
 ### 1. 登录获取 token
-POST http://localhost:8081/api/user/login
+POST http://localhost:8081/api/login
 Content-Type: application/json
 
 {
-  "id": "3225001234",
-  "password": "123456"
+  "id": "3225004433",
+  "password": "Gq30k1oP16"
 }
+
+> {%
+    client.test("登录成功，保存 token", function() {
+        client.assert(response.status === 200, "响应状态不是 200");
+        var json = response.body;
+        // 根据实际返回结构调整，比如 json.data.token
+        client.global.set("token", json.data.token);
+    });
+%}
 
 
 ### 2. 不带 token 访问受保护接口（应返回 401）
-GET http://localhost:8081/api/user/test/auth
+GET http://localhost:8081/api/test/auth
 
 ### 3. 带错误 token 访问（应返回 401）
-GET http://localhost:8081/api/user/test/auth
+GET http://localhost:8081/api/test/auth
 Authorization: Bearer wrong.token.here
 
 ### 4. 带正确 token 访问（应返回 200，且能看到用户信息）
-GET http://localhost:8081/api/user/test/auth
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiU1RVREVOVCIsImV4cGlyZV90aW1lIjoxNzc1MTI2NTU4NDkwLCJpc3N1ZV90aW1lIjoiMjAyNi0wMy0yNiAxODo0MjozOCIsImlkIjoiMzIyNTAwMTIzNCJ9.xmP1tnS8AvAX4ikKUAiY5lQ_-m_gFEARGn-Tn62Pv7E
+GET http://localhost:8081/api/test/auth
+Authorization: Bearer {{token}}
+
+### 5. 宿舍
+PUT http://localhost:8081/api/user/update
+Authorization: Bearer Bearer {{Studenttoken}}
+Content-Type: application/json
+
+{
+  "dormBuilding": "西六",
+  "roomNumber": "304"
+}
+
+### 6.改密码
+PUT http://localhost:8081/api/changepassword
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "12345678",
+  "newPassword": "123456asdf"
+}
+
+### 7. 个人信息
+GET http://localhost:8081/api/user/checkme
+Authorization: Bearer {{token}}
+
+
+###8. 报修单
+POST http://localhost:8081/api/user/callfix
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "phoneNumber": "13435098697",
+  "deviceType": "花洒",
+  "descriptionText": "花洒漏水"
+}
+
+###9. 看报修单
+GET http://localhost:8081/api/user/myrepairorder
+Authorization: Bearer {{token}}
+
+###10.单个报修单
+GET http://localhost:8081/api/thisrepairorder/9
+Authorization: Bearer {{token}}
+
+###11. comment
+PUT http://localhost:8081/api/user/9/comments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "comments": "好"
+}
+
+###12.取消
+PUT http://localhost:8081/api/9/cancel
+Authorization: Bearer {{token}}
+
+###13.删除
+DELETE http://localhost:8081/api/9/delete
+Authorization: Bearer {{token}}
+
+###14.按状态查看
+GET http://localhost:8081/api/administer/select
+Authorization: Bearer {{token}}
+
+
+###15. 修改状态
+PUT http://localhost:8081/api/9/restatus?status=completed
+Authorization: Bearer {{token}}
+
+
+### 16. 修改优先级
+PUT http://localhost:8081/api/9/priority
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "priority": "马上处理"
+}
+
+
+
+
+
+
+
+

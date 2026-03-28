@@ -2,10 +2,13 @@ spring:
   application:
     name: demo
   datasource:
-    url: jdbc:mysql://localhost:3306/dorm_repair?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/dorm_repair?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: Gq39k1oP17
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
 
 mybatis:
     mapper-locations: classpath:com/dorm/mapper/*.xml

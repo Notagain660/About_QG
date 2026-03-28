@@ -9,6 +9,8 @@ import com.example.demo.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class UserService {
 
@@ -53,6 +55,9 @@ public class UserService {
     public boolean updater(User currentUser, String dormBuilding, String roomNumber, String password) {
 
             String previousRoomNumber = currentUser.getRoomNumber();
+            String predormBuilding = currentUser.getDormBuilding();
+            String previousPassword = currentUser.getPassword();
+            boolean result = false;
 
             currentUser.setDormBuilding(dormBuilding);
             currentUser.setRoomNumber(roomNumber);
@@ -60,9 +65,15 @@ public class UserService {
             userMapper.updateUser(currentUser);
 
             String newRoomNumber = currentUser.getRoomNumber();
+            String newdormBuilding = currentUser.getDormBuilding();
+            String newPassword = currentUser.getPassword();
 
-            return !newRoomNumber.equals(previousRoomNumber);
+            if(!Objects.equals(previousRoomNumber, newRoomNumber) || !Objects.equals(predormBuilding, newdormBuilding)) {
+                result = true;
+            } else if (!Objects.equals(previousPassword, newPassword)) {//可以用在null的用法，deepequals在字符串会退化成为equals
+                result = true;
+            }
 
-
+            return result;
     }
 }
