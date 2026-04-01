@@ -2,17 +2,20 @@ package com.example.demo.verifier;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 
-
 @Component
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class AuthInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private JwtHelper jwtHelper;
+    private static final Logger log = LoggerFactory.getLogger(AuthInterceptor.class);
+    private final JwtHelper jwtHelper;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -20,7 +23,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         // 放行登录和注册接口（不需要token）
         String uri = request.getRequestURI();
-        System.out.println("Request URI: " + uri);
+        log.info("Request URI: {}", uri);
         if (uri.equals("/api/register") || uri.equals("/api/login") || uri.equals("/api")) {
             return true;
         }
@@ -59,7 +62,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)  {
         // 清除 ThreadLocal，避免内存泄漏
         UserContext.clear();
     }

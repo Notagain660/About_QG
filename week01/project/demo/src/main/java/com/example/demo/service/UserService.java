@@ -6,16 +6,18 @@ import com.example.demo.utils.LoginResult;
 import com.example.demo.entity.User;
 import com.example.demo.mapper.UserMapper;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserService {
 
-    @Autowired
-    private UserMapper userMapper;
+
+    private final UserMapper userMapper;
 
     public boolean register(Role role, String id, String name, String password) {
 

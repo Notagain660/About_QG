@@ -47,17 +47,6 @@ public class RepairorderService {
             return 0;
     }
 
-    public List<Repairorder> checkMyrepairorder(User currentUser) {
-            String id = currentUser.getId();
-            return repairorderMapper.selectByUserId(id);
-    }
-
-    public Repairorder checkRepairorder(Long orderId) {
-            Repairorder repairorder = repairorderMapper.selectByOrderId(orderId);
-            repairorderMapper.selectByOrderId(orderId);
-            return repairorder;
-    }
-
     public boolean updateRepairorder(RepairStatus status, Long orderId, String comments) {
 
             Repairorder repairorder = repairorderMapper.selectByOrderId(orderId);
@@ -75,18 +64,6 @@ public class RepairorderService {
 
             Date nextDate = repairorder.getUpdateTime();
             return previousDate != nextDate;
-
-    }
-
-    public List<Repairorder> checkAllRepairorder() {
-
-            return repairorderMapper.selectAll();
-
-    }
-
-    public List<Repairorder> checkAllRepairorderByStatus(RepairStatus status) {
-
-            return repairorderMapper.selectByStatus(status);
 
     }
 
@@ -114,9 +91,4 @@ public class RepairorderService {
 
     }
 
-    public boolean loginRepairorder(Long orderId) {
-
-            Repairorder repairorder = repairorderMapper.selectByOrderId(orderId);
-            return (repairorder != null) && (orderId.equals(repairorder.getOrderId()));
-    }
 }

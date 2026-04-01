@@ -15,3 +15,6 @@ Maven 是一个**项目管理和构建工具**，核心功能：
 - `mybatis`：让你能用更简单的方式操作数据库（相当于一个封装好的数据库操作框架）。
 
 C语言里需要自己找对应的库，然后处理链接。Java不用。
+
+Sync finished. If there is something wrong with the project model, reload all projects提醒同步外部依赖完成。
+

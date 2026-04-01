@@ -2,7 +2,11 @@ package com.example.demo.entity;
 
 import java.util.Date;
 import com.example.demo.enums.RepairStatus;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class Repairorder {
     private String id;
     private Long orderId;
@@ -20,109 +24,6 @@ public class Repairorder {
 
     public Repairorder() {
 
-    }
-
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
-    public String getDormBuilding() {
-        return dormBuilding;
-    }
-
-    public void setDormBuilding(String dormBuilding) {
-        this.dormBuilding = dormBuilding;
-    }
-
-    public String getRoomNumber() {
-        return roomNumber;
-    }
-
-    public void setRoomNumber(String roomNumber) {
-        this.roomNumber = roomNumber;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getDeviceType() {
-        return deviceType;
-    }
-
-    public void setDeviceType(String deviceType) {
-        this.deviceType = deviceType;
-    }
-
-    public RepairStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(RepairStatus status) {
-        this.status = status;
-    }
-
-    public String getDescriptionText() {
-        return descriptionText;
-    }
-
-    public void setDescriptionText(String desctiptionText) {
-        this.descriptionText = desctiptionText;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Date getProcessTime() {
-        return processTime;
-    }
-
-    public void setProcessTime(Date processTime) {
-        this.processTime = processTime;
-    }
-
-    public String getPriorityLevel() {
-        return priorityLevel;
-    }
-
-    public void setPriorityLevel(String priorityLevel) {
-        this.priorityLevel = priorityLevel;
-    }
-
-    public String getComments() {
-        return comments;
-    }
-
-    public void setComments(String comments) {
-        this.comments = comments;
     }
 
     @Override

@@ -20,13 +20,7 @@ server:
   port: 8081
   address: 127.0.0.1
 
-user:
-  id: 3225004433
-  name:
-  password:
-  role:
-  dormBuilding:
-  roomNumber:
+
 
 jwt:
   secretkey: Gq39k1Op05

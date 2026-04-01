@@ -1,5 +1,10 @@
 package com.example.demo.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class LoginreturnData {
     private String token;
     private User user;
@@ -9,18 +14,4 @@ public class LoginreturnData {
         this.user = user;
     }
 
-    public String getToken() {
-        return token;
-    }
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 }

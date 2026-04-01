@@ -16,7 +16,6 @@ import com.example.demo.utils.LoginResult;
 import com.example.demo.utils.MapperResult;
 import com.example.demo.verifier.UserContext;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,19 +42,6 @@ public class Controller {
     private String secretkey;
 
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
-
-    @PostConstruct
-    public void init() {
-        System.out.println("secretkey = " + secretkey);
-    }
-
-
-    @GetMapping("/test/auth")
-    public MapperResult<User> testAuth() {
-        String userId = UserContext.getCurrentUser().getUserId();
-        User user = userMapper.selectById(userId);
-        return MapperResult.success("获取用户信息成功", user);
-    }
 
     @GetMapping
     public String trial(){

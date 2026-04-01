@@ -51,3 +51,31 @@
     - `<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>`：指定了项目源代码文件的编码格式为 UTF-8，避免出现乱码。
 
 
+**正确的注释应该只包含开头 `<!--` 和结尾 `-->`，中间不能出现连续的 `--`**
+
+`<configuration>` 内部的子元素必须按照固定的顺序出现。正确的顺序是：  
+`<properties>` → `<settings>` → `<typeAliases>` → ... → `<environments>` → `<databaseIdProvider>` → `<mappers>`。
+
+
+mapper：````{<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dorm.mapper.UserMapper">
+    <!-- 插入用户：useGeneratedKeys 可以获取自动生成的主键值 -->
+    <insert id="insertUser" parameterType="com.dorm.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (username, password, role)
+        VALUES (#{username}, #{password}, #{role})
+    </insert>
+    <!-- 根据用户名查询用户 -->
+    <select id="selectByUsername" parameterType="string" resultType="com.dorm.entity.User">
+        SELECT * FROM user WHERE username = #{username}
+    </select>
+</mapper>
+
+> **解释**：
+> - `namespace` 必须和接口的全限定名一致（`com.dorm.mapper.UserMapper`）。  
+> - `<insert>` 标签的 `id` 对应接口的方法名 `insertUser`。    
+> - `parameterType` 是参数类型，`User` 类要写全限定名。   
+>`#{username}` 是MyBatis的参数占位符，会自动从传入的User对象中取出 `username` 属性的值。  
+> `<select>` 的 `resultType` 指定返回的结果要封装成什么类型的对象，这里返回一个 `User` 对象
+}
+````

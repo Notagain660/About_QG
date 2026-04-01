@@ -1,5 +1,8 @@
 package com.example.demo.verifier;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class UserContext {
     private static final ThreadLocal<UserInfo> currentUser = new ThreadLocal<>();//新建线程
 
@@ -16,6 +19,8 @@ public class UserContext {
     }//清理线程数据，否则下一个人用了这个人的数据
 
     // 简单封装用户信息
+    @Setter
+    @Getter
     public static class UserInfo {//构造器
         private String userId;
         private String role;
@@ -25,21 +30,6 @@ public class UserContext {
             this.role = role;
         }
 
-        public String getUserId() {
-            return userId;
-        }
-
-        public void setUserId(String userId) {
-            this.userId = userId;
-        }
-
-        public String getRole() {
-            return role;
-        }
-
-        public void setRole(String role) {
-            this.role = role;
-        }
     }
 
 

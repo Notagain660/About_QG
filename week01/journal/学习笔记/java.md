@@ -70,7 +70,7 @@ Long和long（基元类型）：
 
 **类**
 - class，定义实例创建模板，字段：类的特征（用到的量）
-- 构造方法：创建对象实例时就把内部字段初始化（通过传入的参数）（默认构造方法：空）（可以构造方法调用构造方法，this(参数列表)同名也没事
+- 构造方法：new对象实例时就自动调用把内部字段初始化（通过传入的参数）（默认构造方法：空）（可以构造方法调用构造方法，this(参数列表)同名也没事
 - 任何class的构造方法，第一行语句必须是调用父类的构造方法。（super()）
 
 **修饰**
@@ -103,8 +103,47 @@ new C（参数）
 - **组合**：has关系，比如userservice里面protected User user
 
 - **多态**：调用时取决于当时的实例是什么，不需要知道到底所属哪个类。（父类子类关系）
-
+当一个具体的`class`去实现一个`interface`时，需要使用`implements`关键字，一个类可以实现多个`interface`
+本项目不用implement的原因：MyBatis 在运行时，会**自动生成一个该接口的实现类（代理对象）**，这个代理对象会：
+1. 读取 XML 或注解中的 SQL 语句。
+2. 当调用 `selectById` 方法时，代理对象会执行对应的 SQL，并返回结果。
+这个动态生成的实现类，就是 MyBatis 帮你写的“具体实现”。它使用了 Java 的**动态代理**技术，在内存中动态创建了一个实现了 `UserMapper` 接口的类，并接管了所有方法调用。
+**所以，不需要手动写 `implements UserMapper`，因为 MyBatis 在运行时做了。**
 
 ## 常见类
 - Object.equals可以用在可能为空的字符串比较，deepequals主要用于数组（尤其二维）在字符串会退化成为equals
-- 
+
+
+
+### 注解
+ `@Nullable` 和 `@NotNull` 是 IntelliJ IDEA **自动推断**出的注解，用于辅助代码分析，**不影响程序运行**，但能帮助在编码时发现潜在的空指针问题。
+- `@Nullable` 表示方法返回值可能为 `null`（比如登录失败时），提醒调用者处理。
+- `@NotNull` 表示参数不应该传入 `null`，如果传入 `null`，IDEA 会给出警告。
+
+
+
+### 记录类（record）
+- 一种特殊的类，用 `record` 关键字声明。
+- 编译器会自动生成：
+    - 一个全参构造器（参数顺序与字段声明一致）
+    - 每个字段的 `private final` 成员变量
+    - 公开的 `getter` 方法（方法名与字段名相同，例如 `success()` 而不是 `getSuccess()`）
+    - `equals()`、`hashCode()`、`toString()` 方法
+- 字段默认是 `final` 的，所以记录类是不可变的（immutable）
+- 记录类不能扩展其他类（但可以实现接口）。
+- 如果需要自定义构造器或方法，可以添加静态工厂方法 `success()` 和 `fail()`。
+- 获取字段值时，使用 `result.success()` 而不是 `result.getSuccess()`（但你的 `Main` 中还在用 `isSuccess()`，需要改为 `success()`
+
+@param prompt 提示信息
+@param validator 校验规则（如 n -> n >= 1 && n <= 7）
+
+
+
+
+
+
+
+
+
+
+
